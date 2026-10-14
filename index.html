@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El tren de la lectura</title>
+
+<!-- Fuentes: Bricolage Grotesque (titulares) · Instrument Serif (énfasis) · JetBrains Mono (rótulos) · Caveat (correcciones a mano) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Caveat:wght@500..700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ===========================================
+   TEMA · papel crema + colores de risografía (uno por estación)
+   =========================================== */
+:root {
+    --paper: #F4EEE3;
+    --paper-2: #E9E0CF;
+    --ink: #17153B;
+    --ink-soft: #4A4766;
+    --white: #FFFDF8;
+
+    --blue: #2B5BFF;
+    --pink: #FF3D8B;
+    --yellow: #FFC72C;
+    --green: #00A77F;
+    --orange: #FF6A2B;
+    --cyan: #19B3E6;
+    --violet: #7A4DFF;
+    --red: #E5383B;
+
+    --font-display: 'Bricolage Grotesque', sans-serif;
+    --font-serif: 'Instrument Serif', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-hand: 'Caveat', cursive;
+
+    --ease: cubic-bezier(.16, 1, .3, 1);
+    --spring: cubic-bezier(.34, 1.56, .64, 1);
+
+    --stage-bg: #0E0D24;
+    --slide-bg: var(--paper);
+}
+@property --mx { syntax: '<length>'; inherits: true; initial-value: 300px; }
+@property --my { syntax: '<length>'; inherits: true; initial-value: 260px; }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ===========================================
+   BASE DE ESCENARIO FIJO 16:9 (viewport-base.css)
+   =========================================== */
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: var(--stage-bg, #000); }
+.deck-viewport { position: fixed; inset: 0; overflow: hidden; background: var(--stage-bg, #000); }
+.deck-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; transform-origin: 0 0; background: var(--slide-bg, #fff); }
+.slide { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; display: block; visibility: hidden; opacity: 0; pointer-events: none; background: var(--slide-bg, #fff); }
+.slide.active, .slide.visible { visibility: visible; opacity: 1; pointer-events: auto; z-index: 1; }
+img, video, canvas, svg { max-width: 100%; max-height: 100%; }
+.deck-controls { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 1000; }
+@media print {
+    html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
+    .deck-viewport { position: static; overflow: visible; background: #fff; }
+    .deck-stage { position: static; width: auto; height: auto; transform: none !important; background: none; }
+    .slide { position: relative; display: block !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; width: 1920px; height: 1080px; break-after: page; page-break-after: always; }
+    .slide:last-child { break-after: auto; page-break-after: auto; }
+    .deck-controls { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+}
+
+/* ===========================================
+   PAPEL: puntos + grano de risografía
+   =========================================== */
+.slide {
+    font-family: var(--font-display);
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image: radial-gradient(rgba(23, 21, 59, .10) 1.6px, transparent 1.8px);
+    background-size: 36px 36px;
+    --c: var(--pink); --ct: #E0186C; --tint: #FFD9E8;
+}
+.deck-stage::after {
+    content: ''; position: absolute; inset: 0; z-index: 90; pointer-events: none;
+    opacity: .28; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .09  0 0 0 0 .08  0 0 0 0 .23  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Color por estación: --c color · --ct versión legible para texto · --tint tono suave */
+.slide[data-station="1"] { --c: var(--blue);   --ct: #2B5BFF; --tint: #DCE5FF; }
+.slide[data-station="2"] { --c: var(--pink);   --ct: #E0186C; --tint: #FFD9E8; }
+.slide[data-station="3"] { --c: var(--yellow); --ct: #A86F00; --tint: #FFEFB8; }
+.slide[data-station="4"] { --c: var(--green);  --ct: #00805F; --tint: #CDEFE3; }
+.slide[data-station="5"] { --c: var(--orange); --ct: #D9480F; --tint: #FFDCCB; }
+.slide[data-station="6"] { --c: var(--cyan);   --ct: #0080AD; --tint: #CDEFFA; }
+.slide[data-station="7"] { --c: var(--violet); --ct: #6A3BF0; --tint: #E4DAFF; }
+
+/* ===========================================
+   COMPONENTES COMUNES
+   =========================================== */
+.tap { position: relative; cursor: pointer; }
+.chrome { position: absolute; top: 54px; left: 120px; right: 120px; z-index: 5; display: flex; justify-content: space-between; align-items: center; }
+.kicker { display: flex; align-items: center; gap: 16px; font: 700 21px/1 var(--font-mono); letter-spacing: .2em; text-transform: uppercase; }
+.kicker i { width: 18px; height: 18px; background: var(--c); border: 2.5px solid var(--ink); transform: rotate(45deg); display: block; }
+.qchip { font: 600 19px/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; padding: 11px 18px; border: 2.5px solid var(--ink); border-radius: 999px; background: var(--white); }
+.qchip b { color: var(--ct); }
+
+.head { position: absolute; left: 120px; right: 120px; top: 130px; }
+.h2 { font-weight: 800; font-size: 88px; line-height: .98; letter-spacing: -.035em; }
+.h2 em, .big em, .ans em { font-family: var(--font-serif); font-style: italic; font-weight: 400; letter-spacing: -.01em; color: var(--ct); }
+.lead { font-size: 31px; line-height: 1.32; color: var(--ink-soft); margin-top: 20px; max-width: 1300px; }
+.lead b { color: var(--ink); }
+.hand { font-family: var(--font-hand); font-weight: 700; color: #E0186C; }
+
+.card { background: var(--white); border: 3px solid var(--ink); border-radius: 24px; box-shadow: 10px 10px 0 var(--sh, var(--ink)); }
+.chip { display: inline-flex; align-items: center; gap: 10px; font: 600 18px/1 var(--font-mono); padding: 10px 15px; border: 2.5px solid var(--ink); border-radius: 999px; background: var(--white); white-space: nowrap; }
+.mark { background: linear-gradient(transparent 58%, var(--yellow) 58%, var(--yellow) 92%, transparent 92%); padding: 0 4px; }
+.blob { position: absolute; border-radius: 50%; background: var(--bc, var(--c)); mix-blend-mode: multiply; animation: float 16s ease-in-out infinite; pointer-events: none; }
+@keyframes float { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(24px, -30px) scale(1.04); } 66% { transform: translate(-20px, 18px) scale(.97); } }
+
+/* Indicador "aquí se puede tocar" */
+.ping { position: absolute; right: -12px; top: -12px; width: 26px; height: 26px; border-radius: 50%; background: var(--pink); border: 3px solid var(--ink); z-index: 9; pointer-events: none; }
+.ping::after { content: ''; position: absolute; inset: -3px; border-radius: 50%; border: 3px solid var(--pink); animation: ping 1.6s ease-out infinite; }
+@keyframes ping { from { transform: scale(1); opacity: 1; } to { transform: scale(2.8); opacity: 0; } }
+.on > .ping, .touched > .ping { display: none; }
+
+/* ===========================================
+   ANIMACIONES
+   .rv = al entrar · .frag = con cada clic · .frag.keep = visible, el clic cambia su estado
+   =========================================== */
+.rv { opacity: 0; transform: translateY(36px) rotate(var(--rot, 0deg)); transition: opacity .8s var(--ease), transform .9s var(--ease); transition-delay: var(--d, 0s); }
+.rv.pop { transform: scale(.7) rotate(-6deg); transition: opacity .6s var(--ease), transform .9s var(--spring); transition-delay: var(--d, 0s); }
+.rv.from-r { transform: translateX(90px) rotate(var(--rot, 0deg)); }
+.slide.visible .rv { opacity: 1; transform: rotate(var(--rot, 0deg)); }
+
+.frag { opacity: 0; transform: translateY(30px) rotate(var(--rot, 0deg)); transition: opacity .55s var(--ease), transform .75s var(--spring); }
+.frag.on { opacity: 1; transform: rotate(var(--rot, 0deg)); }
+.frag.trig { position: absolute; width: 0; height: 0; overflow: hidden; }
+.frag.keep { opacity: 1; transform: rotate(var(--rot, 0deg)); }
+.slide.visible .frag.keep { animation: keepIn .8s var(--spring) backwards; animation-delay: var(--d, .25s); }
+@keyframes keepIn { from { opacity: 0; transform: translateY(40px) rotate(var(--rot, 0deg)) scale(.94); } }
+
+.draw { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 2s var(--ease); transition-delay: var(--d, 0s); }
+.slide.visible .draw { stroke-dashoffset: 0; }
+
+/* Tarjetas que se voltean */
+.flip { perspective: 1800px; }
+.flip .in { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .9s var(--spring); }
+.flip.on .in { transform: rotateY(180deg); }
+.flip .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border: 3px solid var(--ink); border-radius: 24px; background: var(--white); box-shadow: 10px 10px 0 var(--sh, var(--ink)); overflow: hidden; }
+.flip .back { transform: rotateY(180deg); box-shadow: -10px 10px 0 var(--sh, var(--ink)); }
+.flip:not(.on):hover .in { transform: rotateY(-8deg) translateY(-6px); }
+.turn { position: absolute; right: 22px; bottom: 18px; font: 700 15px/1 var(--font-mono); letter-spacing: .12em; color: var(--ink-soft); opacity: .7; }
+
+/* ===========================================
+   TREN (componente reutilizable, se construye con JS)
+   =========================================== */
+.train { position: relative; display: flex; align-items: flex-end; }
+.car { position: relative; flex: none; }
+.wagon { width: 200px; height: 150px; }
+.wagon .roof { position: absolute; left: -7px; right: -7px; top: 0; height: 16px; background: var(--ink); border-radius: 8px; }
+.wagon .body { position: absolute; left: 0; right: 0; top: 10px; height: 104px; background: var(--wc, var(--pink)); border: 4px solid var(--ink); border-radius: 12px; box-shadow: inset 0 -14px 0 rgba(23, 21, 59, .16); transition: box-shadow .3s; }
+.wagon .under { position: absolute; left: 12px; right: 12px; bottom: 32px; height: 10px; background: var(--ink); border-radius: 4px; }
+.wins { position: absolute; left: 16px; right: 16px; top: 14px; display: flex; gap: 10px; }
+.wins i { position: relative; flex: 1; height: 38px; background: var(--paper); border: 3px solid var(--ink); border-radius: 7px; overflow: hidden; }
+.wins i b { position: absolute; left: 50%; bottom: -4px; width: 20px; height: 22px; margin-left: -10px; border-radius: 50% 50% 0 0; background: var(--ink); }
+.wagon .lab { position: absolute; inset: 8px 10px 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+.wagon .lab small { font: 700 15px/1 var(--font-mono); letter-spacing: .12em; }
+.wagon .lab span { font-weight: 800; font-size: 23px; line-height: 1.05; letter-spacing: -.02em; margin-top: 6px; }
+.wheel { position: absolute; bottom: 0; width: 46px; height: 46px; border-radius: 50%; border: 5px solid var(--ink);
+    background: radial-gradient(circle, var(--ink) 0 5px, transparent 5.5px),
+                linear-gradient(0deg, transparent 44%, var(--ink) 44% 56%, transparent 56%),
+                linear-gradient(90deg, transparent 44%, var(--ink) 44% 56%, transparent 56%), var(--white); }
+.wagon .w1 { left: 22px; } .wagon .w2 { right: 22px; }
+.coupler { flex: none; width: 24px; height: 10px; margin-bottom: 40px; background: var(--ink); border-radius: 3px; }
+.loco { width: 270px; height: 190px; }
+.loco-art { position: absolute; inset: 0; }
+.to-left .loco-art { transform: scaleX(-1); }
+.cab { position: absolute; left: 6px; bottom: 40px; width: 100px; height: 126px; background: var(--lc, var(--blue)); border: 4px solid var(--ink); border-radius: 8px; }
+.cab i { position: absolute; left: 16px; top: 16px; width: 60px; height: 44px; background: var(--paper); border: 3px solid var(--ink); border-radius: 6px; }
+.cabroof { position: absolute; left: -4px; width: 120px; bottom: 158px; height: 18px; background: var(--ink); border-radius: 8px; }
+.boiler { position: absolute; left: 100px; bottom: 40px; width: 152px; height: 92px; background: var(--lc, var(--blue)); border: 4px solid var(--ink); border-radius: 0 46px 46px 0; }
+.lband { position: absolute; left: 150px; bottom: 40px; width: 18px; height: 92px; background: var(--yellow); border: 4px solid var(--ink); border-top: 0; border-bottom: 0; }
+.dome { position: absolute; left: 176px; bottom: 128px; width: 38px; height: 22px; background: var(--pink); border: 4px solid var(--ink); border-bottom: 0; border-radius: 20px 20px 0 0; }
+.chimney { position: absolute; left: 216px; bottom: 128px; width: 30px; height: 44px; background: var(--ink); }
+.chimney::before { content: ''; position: absolute; left: -8px; top: -8px; width: 46px; height: 14px; background: var(--ink); border-radius: 4px; }
+.stack { position: absolute; left: 15px; top: -8px; width: 1px; height: 1px; }
+.lamp { position: absolute; left: 238px; bottom: 96px; width: 22px; height: 22px; border-radius: 50%; background: var(--yellow); border: 4px solid var(--ink); }
+.cow { position: absolute; left: 246px; bottom: 18px; width: 0; height: 0; border-top: 30px solid transparent; border-left: 30px solid var(--ink); }
+.chassis { position: absolute; left: 0; right: 16px; bottom: 30px; height: 14px; background: var(--ink); border-radius: 6px; }
+.wheel.big { left: 14px; width: 66px; height: 66px; }
+.wheel.m1 { left: 124px; width: 50px; height: 50px; }
+.wheel.m2 { left: 186px; width: 50px; height: 50px; }
+.spin .wheel { animation: spin .45s linear infinite; }
+.to-left.spin .wheel { animation-direction: reverse; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Desfile de tren decorativo (portada y cierre) */
+.parade { position: absolute; left: 0; right: 0; bottom: 30px; height: 80px; pointer-events: none; }
+.parade .trk { position: absolute; left: 0; right: 0; bottom: 12px; height: 5px; background: var(--ink); }
+.parade .trk::after { content: ''; position: absolute; left: 0; right: 0; top: 5px; height: 8px; background: repeating-linear-gradient(90deg, var(--ink) 0 8px, transparent 8px 28px); opacity: .45; }
+.parade .mover { position: absolute; left: 0; bottom: 17px; animation: parade 22s linear infinite; }
+.parade .train { transform: scale(.34); transform-origin: left bottom; }
+@keyframes parade { from { transform: translateX(-420px); } to { transform: translateX(2000px); } }
+
+/* Humo (bocanadas creadas con JS) */
+.fx { position: absolute; inset: 0; z-index: 30; pointer-events: none; overflow: hidden; }
+.puff { position: absolute; width: 60px; height: 60px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #FFFFFF, #ECE5F2 70%); border: 3px solid var(--ink); }
+
+/* ===========================================
+   RIEL INFERIOR: ruta de estaciones + tren en miniatura
+   =========================================== */
+.rail { position: absolute; left: 170px; right: 170px; bottom: 26px; height: 100px; z-index: 20; transition: opacity .5s var(--ease), transform .6s var(--ease); pointer-events: none; }
+.deck-stage.no-rail .rail { opacity: 0; transform: translateY(50px); }
+.rail .trk { position: absolute; left: -50px; right: -50px; top: 62px; height: 5px; background: var(--ink); border-radius: 3px; }
+.rail .trk::after { content: ''; position: absolute; left: 0; right: 0; top: 5px; height: 8px; background: repeating-linear-gradient(90deg, var(--ink) 0 8px, transparent 8px 26px); opacity: .45; }
+.rail .stn { position: absolute; top: 56px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; }
+.rail .stn i { width: 18px; height: 18px; border-radius: 50%; background: var(--sc); border: 3px solid var(--ink); }
+.rail .stn span { font: 600 14px/1 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; margin-top: 8px; opacity: .45; }
+.rail .stn.past span { opacity: .75; }
+.rail .stn.cur span { opacity: 1; font-weight: 700; }
+.rail .stn.cur i { transform: scale(1.3); }
+.rail .mini { position: absolute; left: 0; bottom: 38px; transition: left 1.6s cubic-bezier(.65, 0, .35, 1); }
+.rail .mini .train { transform: scale(.3); transform-origin: left bottom; }
+
+/* ===========================================
+   CINEMÁTICA DEL VIAJE (entre estaciones)
+   =========================================== */
+.cine { position: absolute; inset: 0; z-index: 80; display: none; overflow: hidden;
+    background-color: var(--paper);
+    background-image: radial-gradient(rgba(23, 21, 59, .08) 1.6px, transparent 1.8px);
+    background-size: 36px 36px; }
+.cine.show { display: block; }
+.cine .sun { position: absolute; right: 230px; top: 70px; width: 270px; height: 270px; border-radius: 50%; background: var(--yellow); mix-blend-mode: multiply; }
+.cine .sun2 { position: absolute; right: 330px; top: 150px; width: 200px; height: 200px; border-radius: 50%; background: var(--pink); mix-blend-mode: multiply; opacity: .55; }
+.cine .cloud { position: absolute; top: 0; left: 0; }
+.cine .cloud svg { max-width: none; max-height: none; display: block; }
+.cine .ly { position: absolute; left: 0; width: 1920px; background-repeat: repeat-x; background-size: 1920px 100%; }
+.cine .far { top: 300px; height: 420px; }
+.cine .mid { top: 540px; height: 340px; }
+.cine .near { top: 570px; height: 510px; }
+.cine .cst { position: absolute; left: 0; top: 0; width: 900px; height: 1080px; }
+.cst .platform { position: absolute; left: 0; top: 768px; width: 900px; height: 50px; background: var(--paper-2); border: 4px solid var(--ink); border-bottom: 0; }
+.cst .platform::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 12px; background: repeating-linear-gradient(90deg, var(--yellow) 0 30px, var(--ink) 30px 60px); }
+.cst .post { position: absolute; left: 440px; top: 520px; width: 20px; height: 250px; background: var(--ink); }
+.cst .board { position: absolute; left: 130px; top: 320px; width: 640px; height: 210px; border: 6px solid var(--ink); border-radius: 22px; background: var(--bc, var(--blue)); color: var(--bt, var(--ink)); box-shadow: 12px 12px 0 var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; transform-origin: 50% 100%; }
+.cst .board small { font: 700 24px/1 var(--font-mono); letter-spacing: .3em; }
+.cst .board b { font-weight: 800; font-size: 104px; letter-spacing: -.04em; line-height: 1; margin-top: 12px; }
+.cine .ctrain { position: absolute; left: 0; bottom: 262px; }
+.cine .ctrain .train { transform: scale(1.25); transform-origin: left bottom; }
+.cine .cq { position: absolute; left: 50%; bottom: 80px; transform: translateX(-50%); padding: 22px 44px; background: var(--white); border: 4px solid var(--ink); border-radius: 999px; box-shadow: 8px 8px 0 var(--ink); font: italic 400 54px/1.1 var(--font-serif); white-space: nowrap; opacity: 0; }
+.cine .skip { position: absolute; right: 60px; top: 46px; font: 600 16px/1 var(--font-mono); letter-spacing: .14em; opacity: .5; }
+.cine .cfx { position: absolute; inset: 0; pointer-events: none; }
+
+/* =====================================================================
+   1 · PORTADA
+   ===================================================================== */
+.s-cover .cover-left { position: absolute; left: 120px; top: 105px; width: 1080px; z-index: 2; }
+.tag { display: inline-block; font: 700 19px/1 var(--font-mono); letter-spacing: .16em; text-transform: uppercase; padding: 13px 18px; background: var(--ink); color: var(--paper); border-radius: 8px; }
+.cover-title { font-weight: 800; font-size: 120px; line-height: .93; letter-spacing: -.045em; margin-top: 36px; }
+.cover-title em { font-family: var(--font-serif); font-style: italic; font-weight: 400; color: #E0186C; letter-spacing: -.015em; }
+.caret { display: inline-block; width: 16px; height: 94px; background: var(--pink); margin-left: 16px; vertical-align: -6px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.cover-sub { margin-top: 36px; font-size: 27px; line-height: 1.38; color: var(--ink-soft); max-width: 960px; }
+.cover-sub b { color: var(--ink); font-weight: 700; }
+.team { list-style: none; display: flex; gap: 14px; margin-top: 30px; flex-wrap: wrap; }
+.team li { font: 600 19px/1 var(--font-mono); padding: 13px 18px; border: 2.5px solid var(--ink); border-radius: 999px; background: var(--white); }
+
+.ticket { position: absolute; left: 1220px; top: 250px; width: 600px; height: 380px; --rot: 5deg; display: flex; background: var(--white); border: 3px solid var(--ink); border-radius: 20px; box-shadow: 12px 12px 0 var(--pink); z-index: 3; transition: transform .4s var(--spring); }
+.slide.visible .ticket:hover { transform: rotate(2deg) translateY(-8px); }
+.ticket .main { flex: 1; padding: 30px 32px; border-right: 3px dashed var(--ink); position: relative; }
+.ticket .main::before, .ticket .main::after { content: ''; position: absolute; right: -20px; width: 36px; height: 36px; border-radius: 50%; background: var(--paper); border: 3px solid var(--ink); }
+.ticket .main::before { top: -21px; } .ticket .main::after { bottom: -21px; }
+.ticket .tk-k { font: 700 16px/1 var(--font-mono); letter-spacing: .2em; color: #E0186C; }
+.ticket h3 { font-size: 50px; font-weight: 800; letter-spacing: -.035em; line-height: .95; margin-top: 14px; }
+.ticket .rt { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; margin-top: 26px; }
+.ticket .rt small { display: block; font: 700 13px/1 var(--font-mono); letter-spacing: .16em; color: var(--ink-soft); margin-bottom: 6px; }
+.ticket .rt b { font-size: 22px; line-height: 1.12; }
+.ticket .rt .arr { font: 700 28px/1 var(--font-mono); color: var(--blue); }
+.ticket .meta { display: flex; gap: 10px; margin-top: 24px; }
+.ticket .meta .chip { font-size: 14px; padding: 8px 12px; }
+.ticket .stub { width: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; position: relative; background: var(--tint); border-radius: 0 17px 17px 0; }
+.ticket .stub small { font: 700 13px/1.3 var(--font-mono); letter-spacing: .16em; text-align: center; }
+.ticket .stub b { font-size: 64px; font-weight: 800; letter-spacing: -.04em; line-height: .9; }
+.ticket .hole { width: 52px; height: 52px; border-radius: 50%; background: var(--paper); border: 3px solid var(--ink); box-shadow: inset 4px 4px 0 rgba(23, 21, 59, .2); transform: scale(0); transition: transform .35s var(--spring); }
+.ticket .stamp2 { position: absolute; left: 70px; top: 120px; padding: 12px 22px; border: 6px solid #E0186C; color: #E0186C; border-radius: 12px; font-weight: 800; font-size: 54px; letter-spacing: .02em; transform: rotate(-14deg) scale(2.4); opacity: 0; transition: transform .35s cubic-bezier(.5, 0, .75, 0), opacity .2s; background: rgba(255, 253, 248, .85); }
+.ticket.on .hole { transform: scale(1); }
+.ticket.on .stamp2 { transform: rotate(-14deg); opacity: 1; }
+
+/* =====================================================================
+   2 · GANCHO (con chat)
+   ===================================================================== */
+.s-hook .hook-text { position: absolute; left: 120px; top: 190px; width: 1020px; }
+.big { font-weight: 800; font-size: 90px; line-height: 1; letter-spacing: -.04em; }
+.hook-q { font: italic 400 64px/1.12 var(--font-serif); color: #E0186C; margin-top: 50px; }
+.hook-go { margin-top: 50px; display: inline-flex; align-items: center; gap: 18px; font-weight: 700; font-size: 34px; padding: 22px 34px; background: var(--ink); color: var(--paper); border-radius: 999px; box-shadow: 8px 8px 0 var(--pink); }
+.chat { position: absolute; left: 1220px; top: 170px; width: 580px; z-index: 3; --rot: 3deg; }
+.chat-top { display: flex; align-items: center; gap: 10px; padding: 18px 22px; border-bottom: 3px solid var(--ink); font: 600 18px/1 var(--font-mono); }
+.chat-top i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink); display: block; }
+.chat-top i:nth-child(1) { background: var(--pink); } .chat-top i:nth-child(2) { background: var(--yellow); } .chat-top i:nth-child(3) { background: var(--green); }
+.chat-top span { margin-left: 12px; opacity: .7; }
+.chat-body { padding: 26px 24px 30px; display: flex; flex-direction: column; gap: 16px; }
+.bub { max-width: 86%; padding: 16px 20px; border-radius: 20px; font-size: 24px; line-height: 1.3; border: 2.5px solid var(--ink); opacity: 0; transform: translateY(20px) scale(.9); }
+.bub.me { align-self: flex-end; background: var(--ink); color: var(--paper); border-bottom-right-radius: 6px; }
+.bub.ai { align-self: flex-start; background: #DCE5FF; border-bottom-left-radius: 6px; }
+.slide.visible .bub { animation: bubIn .6s var(--spring) forwards; animation-delay: var(--d); }
+@keyframes bubIn { to { opacity: 1; transform: none; } }
+.typing { display: inline-flex; gap: 8px; padding: 6px 2px; }
+.typing span { width: 12px; height: 12px; border-radius: 50%; background: var(--ink); animation: dots 1.2s infinite ease-in-out; }
+.typing span:nth-child(2) { animation-delay: .15s; } .typing span:nth-child(3) { animation-delay: .3s; }
+@keyframes dots { 0%, 80%, 100% { transform: translateY(0); opacity: .35; } 40% { transform: translateY(-9px); opacity: 1; } }
+
+/* =====================================================================
+   3 · MAPA DE LA RUTA
+   ===================================================================== */
+.map { position: absolute; left: 120px; top: 360px; width: 1680px; height: 560px; }
+.map svg { position: absolute; inset: 0; width: 1680px; height: 560px; overflow: visible; max-width: none; max-height: none; }
+.mst { position: absolute; width: 0; height: 0; z-index: 2; }
+.mst .dot { position: absolute; left: -46px; top: -46px; width: 92px; height: 92px; border-radius: 50%; border: 4px solid var(--ink); background: var(--sc); display: grid; place-items: center; font: 700 28px/1 var(--font-mono); box-shadow: 6px 6px 0 var(--ink); transition: transform .4s var(--spring); }
+.mst > .ping { right: -58px; top: -58px; }
+.mst:hover .dot { transform: scale(1.12) rotate(-6deg); }
+.mst .nm { position: absolute; left: -150px; width: 300px; top: 58px; text-align: center; font-size: 34px; font-weight: 800; letter-spacing: -.02em; }
+.mst .tip { position: absolute; left: -140px; width: 280px; top: 108px; text-align: center; padding: 14px 16px; background: var(--white); border: 3px solid var(--ink); border-radius: 16px; font-size: 21px; line-height: 1.3; box-shadow: 5px 5px 0 var(--sc); opacity: 0; transform: translateY(-10px) scale(.85); transition: all .45s var(--spring); }
+.mst.on .tip { opacity: 1; transform: none; }
+.mst.on .dot { transform: scale(1.08); }
+
+/* =====================================================================
+   4 · FICHA (tarjeta que se voltea)
+   ===================================================================== */
+.s-ficha .left { position: absolute; left: 120px; top: 170px; width: 620px; }
+.idflip { position: absolute; left: 820px; top: 150px; width: 980px; height: 740px; --rot: -1.5deg; --sh: var(--blue); }
+.idflip .band { background: var(--blue); color: var(--white); padding: 20px 36px; font: 700 19px/1 var(--font-mono); letter-spacing: .14em; border-bottom: 3px solid var(--ink); display: flex; justify-content: space-between; }
+.idflip .inner { padding: 40px 44px; }
+.idflip .front h3 { font-size: 58px; font-weight: 800; line-height: 1.02; letter-spacing: -.035em; }
+.idflip .front .au { font-size: 28px; margin-top: 30px; }
+.idflip .front .au span { color: var(--ink-soft); font-size: 23px; display: block; margin-top: 6px; }
+.kw { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 34px; }
+.kw .chip { font-size: 17px; padding: 9px 14px; background: var(--tint); }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 30px 44px; }
+.fields dt { font: 700 16px/1 var(--font-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 10px; }
+.fields dd { font-size: 27px; line-height: 1.3; }
+.idfoot { margin-top: 36px; padding-top: 22px; border-top: 2.5px dashed var(--ink); display: flex; justify-content: space-between; font: 600 19px/1.3 var(--font-mono); color: var(--ink-soft); }
+
+/* =====================================================================
+   5 · ¿POR QUÉ? (notas que se voltean)
+   ===================================================================== */
+.why { position: absolute; left: 140px; top: 360px; display: flex; gap: 70px; }
+.why .flip { width: 500px; height: 520px; }
+.why .face { padding: 42px 42px; }
+.why .n { font: italic 400 150px/0.8 var(--font-serif); }
+.why h3 { font-size: 46px; font-weight: 800; letter-spacing: -.03em; margin-top: 40px; line-height: 1.02; }
+.why .back p { font-size: 30px; line-height: 1.4; }
+.why .back .n { font-size: 80px; margin-bottom: 26px; }
+
+/* =====================================================================
+   6 · ¿DE QUÉ TRATA?
+   ===================================================================== */
+.stats3 { position: absolute; left: 120px; right: 120px; top: 460px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 56px; }
+.stat { padding: 34px 40px; height: 300px; transition: transform .3s var(--spring); }
+.slide.visible .stat:hover { transform: translateY(-8px) rotate(-1deg); }
+.stat .val { font-size: 150px; font-weight: 800; letter-spacing: -.06em; line-height: .9; color: var(--ct); }
+.stat .val small { font-size: 56px; letter-spacing: -.02em; }
+.stat p { font-size: 26px; line-height: 1.3; margin-top: 18px; }
+.subj { position: absolute; left: 120px; right: 120px; top: 830px; display: flex; gap: 16px; align-items: center; font-size: 26px; }
+
+/* =====================================================================
+   7 · EL DILEMA (balanza con el blog que cae)
+   ===================================================================== */
+.dq { position: absolute; left: 120px; right: 120px; top: 255px; text-align: center; font: italic 400 46px/1.15 var(--font-serif); }
+.scale { position: absolute; left: 0; right: 0; top: 360px; height: 520px; }
+.beam { position: absolute; left: 330px; width: 1260px; top: 40px; height: 16px; background: var(--ink); border-radius: 10px; transform: rotate(5deg); transition: transform 1.2s var(--spring) .45s; }
+.weight { position: absolute; left: 60px; bottom: 16px; width: 200px; height: 86px; background: var(--yellow); border: 4px solid var(--ink); border-radius: 12px 12px 4px 4px; display: grid; place-items: center; font-weight: 800; font-size: 34px; box-shadow: 6px 6px 0 var(--ink); opacity: 0; transform: translateY(-520px); }
+.pivot { position: absolute; left: 920px; top: 40px; width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; border-bottom: 80px solid var(--ink); }
+.pivot::after { content: ''; position: absolute; left: -12px; top: -14px; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); border: 4px solid var(--ink); }
+.pan { position: absolute; top: 90px; width: 560px; padding: 30px 36px; transition: transform 1.2s var(--spring) .45s; }
+.pan::before { content: ''; position: absolute; left: 50%; top: -52px; width: 4px; height: 52px; background: var(--ink); }
+.pan.l { left: 330px; --sh: var(--green); transform: translateY(-55px); }
+.pan.r { left: 1030px; --sh: var(--pink); transform: translateY(55px); }
+.pan h4 { font: 700 19px/1 var(--font-mono); letter-spacing: .18em; }
+.pan.l h4 { color: #00805F; } .pan.r h4 { color: #E0186C; }
+.pan ul { list-style: none; margin-top: 18px; display: grid; gap: 12px; }
+.pan li { font-size: 28px; font-weight: 600; display: flex; gap: 14px; align-items: baseline; }
+.pan li::before { content: '●'; font-size: 18px; }
+.pan.l li::before { color: var(--green); } .pan.r li::before { color: var(--pink); }
+.slide:has(.f-balance.on) .beam { transform: rotate(0); }
+.slide:has(.f-balance.on) .pan { transform: translateY(0); }
+.slide:has(.f-balance.on) .weight { animation: drop .7s cubic-bezier(.5, 0, .75, 0) forwards, bounce .5s .7s var(--spring); }
+@keyframes drop { 0% { opacity: 1; transform: translateY(-520px) rotate(-8deg); } 100% { opacity: 1; transform: translateY(0) rotate(0); } }
+@keyframes bounce { 0% { opacity: 1; transform: scaleY(.8); } 100% { opacity: 1; transform: none; } }
+.addblog { position: absolute; left: 50%; top: 830px; transform: translateX(-50%); font-size: 34px; font-weight: 700; padding: 22px 40px; background: var(--ink); color: var(--paper); border-radius: 999px; box-shadow: 8px 8px 0 var(--yellow); white-space: nowrap; transition: transform .3s var(--spring), background .3s; }
+.addblog.frag.keep { transform: translateX(-50%); }
+.addblog.frag.keep:hover { transform: translateX(-50%) translateY(-4px) scale(1.03); }
+.slide.visible .addblog.frag.keep { animation: none; }
+.addblog .b { display: none; }
+.addblog.on .a { display: none; }
+.addblog.on .b { display: inline; }
+.addblog em { font-family: var(--font-serif); font-weight: 400; color: var(--yellow); font-size: 40px; }
+
+/* =====================================================================
+   8 · LAS 3 FASES (como vagones)
+   ===================================================================== */
+.phases { position: absolute; left: 160px; top: 330px; display: flex; align-items: flex-end; }
+.ph { position: relative; width: 480px; height: 500px; }
+.ph .box { position: absolute; left: 0; right: 0; top: 0; bottom: 46px; display: flex; flex-direction: column; overflow: hidden; }
+.ph .top { padding: 20px 30px; border-bottom: 3px solid var(--ink); font: 700 19px/1 var(--font-mono); letter-spacing: .2em; display: flex; justify-content: space-between; }
+.ph .bd { padding: 24px 30px 26px; display: flex; flex-direction: column; flex: 1; }
+.ph h3 { font-size: 48px; font-weight: 800; letter-spacing: -.035em; }
+.ph p { font-size: 25px; line-height: 1.36; margin-top: 12px; color: var(--ink-soft); }
+.ph .ex { margin-top: auto; font: 600 19px/1.45 var(--font-mono); background: var(--ink); color: var(--paper); padding: 14px 16px; border-radius: 12px; }
+.ph .ex span { color: var(--yellow); }
+.ph .wheel { width: 52px; height: 52px; }
+.ph .wa { left: 60px; } .ph .wb { right: 60px; }
+.ph-cp { width: 60px; height: 12px; background: var(--ink); margin-bottom: 70px; border-radius: 3px; }
+.frag.roll { transform: translateX(-300px); }
+.frag.roll.on { transform: none; }
+.frag.roll.on .wheel { animation: spin .35s linear 2; }
+.ground { position: absolute; left: 120px; right: 120px; top: 830px; height: 5px; background: var(--ink); }
+.ground::after { content: ''; position: absolute; left: 0; right: 0; top: 5px; height: 8px; background: repeating-linear-gradient(90deg, var(--ink) 0 8px, transparent 8px 28px); opacity: .45; }
+.note-small { position: absolute; right: 120px; top: 300px; font: 600 17px/1 var(--font-mono); color: var(--ink-soft); letter-spacing: .08em; }
+
+/* =====================================================================
+   9 · HIPÓTESIS SELLADA
+   ===================================================================== */
+.s-hyp .left { position: absolute; left: 120px; top: 160px; width: 700px; }
+.preds { margin-top: 44px; display: grid; gap: 16px; }
+.pred { display: flex; align-items: center; gap: 18px; font-size: 30px; font-weight: 700; }
+.sealnote { margin-top: 34px; font: 700 40px/1.1 var(--font-hand); color: #E0186C; --rot: -2deg; }
+.envelope { position: absolute; left: 900px; top: 180px; width: 900px; height: 680px; --rot: 1.6deg; --sh: var(--pink); padding: 54px 60px; }
+.envelope .lbl { font: 700 19px/1 var(--font-mono); letter-spacing: .2em; color: #E0186C; }
+.envelope .htxt { font-size: 45px; line-height: 1.3; font-weight: 500; margin-top: 30px; filter: blur(14px); opacity: .55; transition: filter 1.2s var(--ease) .2s, opacity 1s .2s; }
+.envelope .htxt b { font-weight: 800; }
+.envelope .htxt .h1c { background: linear-gradient(transparent 60%, #DCE5FF 60%); }
+.envelope .htxt .h2c { background: linear-gradient(transparent 60%, #CDEFE3 60%); }
+.envelope .htxt .h3c { background: linear-gradient(transparent 60%, #FFD9E8 60%); }
+.seal { position: absolute; left: 335px; top: 225px; width: 230px; height: 230px; border-radius: 50%; background: var(--pink); border: 5px solid var(--ink); display: grid; place-items: center; box-shadow: 8px 8px 0 var(--ink); z-index: 2; }
+.seal.frag.keep { transition: transform 1s var(--spring), opacity .8s; }
+.seal:hover { transform: scale(1.06) rotate(-6deg); }
+.seal span { font: italic 400 150px/1 var(--font-serif); color: var(--white); margin-top: -10px; }
+.seal::after { content: 'SELLADA'; position: absolute; bottom: -54px; font: 700 20px/1 var(--font-mono); letter-spacing: .3em; color: var(--ink); }
+.seal.on { transform: translate(380px, -420px) rotate(80deg) scale(.4); opacity: 0; pointer-events: none; }
+.slide:has(.seal.on) .htxt { filter: none; opacity: 1; }
+
+/* =====================================================================
+   10 · EL ARTÍCULO COMO UN TREN
+   ===================================================================== */
+.wpop { position: absolute; left: 120px; right: 120px; top: 270px; height: 290px; padding: 34px 44px; display: grid; grid-template-columns: 300px 1fr; gap: 44px; align-items: center; }
+.wpop .big-tag { height: 100%; border-radius: 18px; border: 3px solid var(--ink); background: var(--wc, var(--tint)); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 16px; transition: background .4s; }
+.wpop .big-tag small { font: 700 20px/1 var(--font-mono); letter-spacing: .16em; }
+.wpop .big-tag b { font-size: 76px; font-weight: 800; letter-spacing: -.04em; line-height: 1; margin-top: 10px; }
+.wpop h3 { font-size: 50px; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+.wpop .q { font: italic 400 44px/1 var(--font-serif); color: #E0186C; margin-top: 10px; }
+.wpop p { font-size: 28px; line-height: 1.36; margin-top: 14px; color: var(--ink-soft); }
+.wpop .loc { font: 600 17px/1 var(--font-mono); margin-top: 14px; color: var(--ink-soft); letter-spacing: .06em; }
+.wpop .content { animation: popIn .5s var(--spring); }
+@keyframes popIn { from { opacity: 0; transform: translateY(14px); } }
+.orgtrack { position: absolute; left: 60px; right: 60px; top: 864px; height: 5px; background: var(--ink); }
+.orgtrack::after { content: ''; position: absolute; left: 0; right: 0; top: 5px; height: 8px; background: repeating-linear-gradient(90deg, var(--ink) 0 8px, transparent 8px 28px); opacity: .45; }
+.orgtrain { position: absolute; left: 153px; top: 674px; transform: translateX(1900px); transition: transform 2.2s cubic-bezier(.2, .7, .25, 1); }
+.slide.visible .orgtrain { transform: none; }
+.slide.visible .orgtrain .wheel { animation: spin .4s linear 5 reverse; }
+.orgtrain .car { transition: transform .45s var(--spring); }
+.orgtrain .car.frag.keep { animation: none; }
+.orgtrain .car.sel { transform: translateY(-22px); }
+.orgtrain .car.sel .body, .orgtrain .loco.sel .boiler { box-shadow: 0 0 0 6px var(--white), 0 0 0 10px var(--ink); }
+.orgtrain .car:hover:not(.sel) { transform: translateY(-8px); }
+.loco-lab { position: absolute; left: 0; right: 0; top: -54px; text-align: center; font: 700 15px/1.2 var(--font-mono); letter-spacing: .12em; }
+.cohesion { position: absolute; left: 560px; top: 596px; font: 700 40px/1 var(--font-hand); color: #E0186C; transform: rotate(-3deg); white-space: nowrap; }
+.cohesion svg { position: absolute; left: 60px; top: 40px; width: 80px; height: 180px; overflow: visible; max-width: none; max-height: none; }
+
+/* =====================================================================
+   11 · LA LUPA SOBRE EL ARTÍCULO
+   ===================================================================== */
+.pagewrap { position: absolute; left: 150px; top: 150px; width: 620px; height: 790px; --rot: -2deg; }
+.page { position: absolute; inset: 0; background: var(--white); border: 3px solid var(--ink); border-radius: 10px; box-shadow: 12px 12px 0 var(--yellow); overflow: hidden; cursor: none; animation: wander 10s ease-in-out infinite alternate; }
+.page.hover { animation: none; }
+@keyframes wander { 0% { --mx: 200px; --my: 140px; } 25% { --mx: 430px; --my: 300px; } 50% { --mx: 220px; --my: 470px; } 75% { --mx: 420px; --my: 600px; } 100% { --mx: 260px; --my: 700px; } }
+.pg { position: absolute; inset: 0; padding: 40px 42px; }
+.pg-blur { filter: blur(3.5px); opacity: .5; }
+.pg-blur mark { background: none !important; }
+.pg-sharp { clip-path: circle(125px at var(--mx) var(--my)); }
+.pg mark { color: inherit; padding: 0 3px; border-radius: 3px; }
+.pg .m1 { background: #FFEFB8; } .pg .m2 { background: #DCE5FF; } .pg .m3 { background: #FFD9E8; } .pg .m4 { background: #CDEFE3; } .pg .m5 { background: #FFDCCB; }
+.pg-journal { font: 700 13px/1 var(--font-mono); letter-spacing: .16em; color: var(--ink-soft); }
+.pg-title { font-size: 27px; font-weight: 800; line-height: 1.15; letter-spacing: -.02em; margin-top: 16px; }
+.pg-author { font-size: 16px; margin-top: 10px; color: var(--ink-soft); }
+.pg-h { font-size: 19px; font-weight: 800; margin-top: 20px; }
+.pg-kw { font-size: 15px; margin-top: 12px; }
+.bars { margin-top: 8px; display: grid; gap: 7px; }
+.bars i { display: block; height: 8px; border-radius: 4px; background: #CFC8BA; }
+.pg-tab { font-size: 15px; margin-top: 12px; font-weight: 600; }
+.pg-tab .tb { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 8px; }
+.pg-tab .tb i { height: 18px; border: 1.5px solid #B9B1A2; }
+.lens { position: absolute; left: calc(var(--mx) - 128px); top: calc(var(--my) - 128px); width: 256px; height: 256px; border-radius: 50%; border: 6px solid var(--ink); box-shadow: 0 0 0 4px var(--white), 8px 8px 0 4px rgba(23, 21, 59, .25); pointer-events: none; z-index: 3; }
+.lens::after { content: ''; position: absolute; left: 210px; top: 210px; width: 26px; height: 110px; background: var(--ink); border-radius: 10px; transform: rotate(-45deg); transform-origin: top center; }
+.s-lupa .right { position: absolute; left: 880px; top: 150px; width: 920px; }
+.steps { margin-top: 36px; display: grid; gap: 16px; }
+.step { display: grid; grid-template-columns: 76px 1fr; gap: 24px; align-items: start; padding: 20px 24px; }
+.step .nn { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--ink); display: grid; place-items: center; font: 700 28px/1 var(--font-mono); background: var(--yellow); }
+.step h3 { font-size: 34px; font-weight: 800; letter-spacing: -.025em; }
+.step p { font-size: 23px; line-height: 1.36; color: var(--ink-soft); margin-top: 6px; }
+
+/* =====================================================================
+   12 · EQUIPO (tarjetas que se voltean)
+   ===================================================================== */
+.team3 { position: absolute; left: 120px; right: 120px; top: 300px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 56px; }
+.team3 .flip { height: 610px; }
+.team3 .face { padding: 36px 38px; }
+.team3 .front { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.team3 .av { width: 190px; height: 190px; border-radius: 50%; border: 4px solid var(--ink); display: grid; place-items: center; font: italic 400 150px/1 var(--font-serif); background: var(--avc); box-shadow: 8px 8px 0 var(--ink); }
+.team3 h3 { font-size: 56px; font-weight: 800; letter-spacing: -.035em; margin-top: 34px; }
+.team3 .sec { font: 600 18px/1.4 var(--font-mono); color: var(--ink-soft); margin-top: 12px; letter-spacing: .04em; }
+.team3 .back h4 { font-size: 36px; font-weight: 800; letter-spacing: -.03em; margin-bottom: 22px; }
+.pm { display: grid; gap: 22px; }
+.pm div { display: flex; gap: 16px; font-size: 26px; line-height: 1.38; }
+.pm i { flex: none; width: 38px; height: 38px; border-radius: 10px; border: 2.5px solid var(--ink); display: grid; place-items: center; font: 700 24px/1 var(--font-mono); font-style: normal; margin-top: 2px; }
+.pm .p i { background: #CDEFE3; } .pm .m i { background: #FFD9E8; }
+
+/* =====================================================================
+   13–15 · FUNCIÓN DE CADA PIEZA (tarjetas que se voltean)
+   ===================================================================== */
+.fgrid { position: absolute; left: 120px; right: 120px; top: 310px; height: 580px; display: grid; gap: 30px; }
+.fgrid .flip { height: 100%; }
+.fgrid .face { padding: 30px 30px; display: flex; flex-direction: column; }
+.fgrid .loc { align-self: flex-start; font: 600 15px/1 var(--font-mono); padding: 8px 11px; border: 2px solid var(--ink); border-radius: 8px; background: var(--tint); letter-spacing: .04em; }
+.fgrid .front h3 { font-size: 40px; font-weight: 800; letter-spacing: -.03em; line-height: 1.02; margin-top: 22px; }
+.fgrid .tren { margin-top: auto; padding-top: 18px; border-top: 2.5px dashed var(--ink); }
+.fgrid .tren small { font: 700 14px/1 var(--font-mono); letter-spacing: .16em; color: var(--ink-soft); }
+.fgrid .tren div { font: 700 40px/1.02 var(--font-hand); color: #E0186C; margin-top: 8px; }
+.fgrid .back small { font: 700 15px/1 var(--font-mono); letter-spacing: .18em; color: var(--ct); }
+.fgrid .back p { font-size: 28px; line-height: 1.38; margin-top: 16px; }
+.fgrid .back h4 { font-size: 26px; font-weight: 800; margin-top: auto; color: var(--ink-soft); }
+
+/* =====================================================================
+   16 · FRASE CENTRAL (fondo naranja)
+   ===================================================================== */
+.s-quote { background-color: var(--orange); background-image: radial-gradient(rgba(23, 21, 59, .14) 1.6px, transparent 1.8px); }
+.s-quote .qbig { position: absolute; left: 120px; top: 230px; width: 1680px; font-weight: 800; font-size: 136px; line-height: .98; letter-spacing: -.045em; }
+.s-quote .qbig em { font-family: var(--font-serif); font-weight: 400; font-style: italic; color: var(--white); letter-spacing: -.015em; }
+.s-quote .neq { display: inline-block; font-family: var(--font-mono); color: var(--white); background: var(--ink); border-radius: 20px; padding: 0 24px; font-size: 110px; line-height: 1.12; vertical-align: 8px; }
+.s-quote .sub { position: absolute; left: 120px; top: 640px; width: 1400px; font: italic 400 46px/1.2 var(--font-serif); }
+.s-quote .attr { position: absolute; left: 120px; top: 770px; font: 600 22px/1.4 var(--font-mono); }
+.s-quote .kicker i { background: var(--white); }
+.s-quote .qchip b { color: var(--ink); }
+
+/* =====================================================================
+   17 · RELACIÓN CON INGENIERÍA DE SISTEMAS
+   ===================================================================== */
+.links { position: absolute; left: 120px; right: 120px; top: 360px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 34px 40px; }
+.links .card { grid-column: span 2; padding: 28px 32px; height: 265px; --sh: var(--c); transition: transform .3s var(--spring); }
+.links .card.on:hover { transform: translateY(-8px) rotate(-1deg); }
+.links .card:nth-child(4) { grid-column: 2 / span 2; }
+.links .card:nth-child(5) { grid-column: 4 / span 2; }
+.links .ln { font: 700 18px/1 var(--font-mono); color: var(--ct); letter-spacing: .1em; }
+.links h3 { font-size: 34px; font-weight: 800; letter-spacing: -.025em; margin-top: 12px; line-height: 1.05; }
+.links p { font-size: 24px; line-height: 1.38; color: var(--ink-soft); margin-top: 12px; }
+
+/* =====================================================================
+   18 · RESULTADOS (adivina y voltea)
+   ===================================================================== */
+.nums { position: absolute; left: 120px; right: 120px; top: 330px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px 46px; }
+.nums .flip { height: 275px; }
+.nums .face { padding: 26px 32px; }
+.nums .front { display: flex; gap: 22px; align-items: center; }
+.nums .front .qm { flex: none; width: 110px; height: 110px; border-radius: 50%; background: var(--tint); border: 3px solid var(--ink); display: grid; place-items: center; font: italic 400 96px/1 var(--font-serif); }
+.nums .front p { font-size: 28px; font-weight: 700; line-height: 1.2; }
+.nums .back .v { font-size: 120px; font-weight: 800; letter-spacing: -.06em; line-height: .95; }
+.nums .back .v.up { color: #00805F; } .nums .back .v.down { color: var(--blue); } .nums .back .v.pct { color: var(--ct); }
+.nums .back p { font-size: 25px; line-height: 1.3; margin-top: 10px; }
+.src { position: absolute; right: 120px; top: 270px; font: 600 17px/1 var(--font-mono); color: var(--ink-soft); }
+
+/* =====================================================================
+   19 · VEREDICTO
+   ===================================================================== */
+.verdict { position: absolute; left: 120px; right: 120px; top: 310px; display: grid; gap: 22px; }
+.vrow { display: grid; grid-template-columns: 430px 1fr 280px; gap: 36px; align-items: center; padding: 24px 32px; min-height: 170px; }
+.vrow .pp { font-size: 32px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+.vrow .pp small { display: block; font: 700 16px/1 var(--font-mono); letter-spacing: .16em; color: var(--ink-soft); margin-bottom: 10px; }
+.vrow .ev { font-size: 25px; line-height: 1.36; color: var(--ink-soft); }
+.vrow .ev b { color: var(--ink); }
+.stamp { justify-self: center; font: 800 30px/1 var(--font-display); letter-spacing: .04em; text-transform: uppercase; padding: 16px 22px; border: 5px solid currentColor; border-radius: 12px; transform: rotate(-6deg); text-align: center; }
+.stamp.ok { color: #00805F; } .stamp.mid { color: #B87A00; }
+.bigstamp { position: absolute; left: 470px; top: 410px; width: 980px; z-index: 8; text-align: center; padding: 30px 40px 34px; border: 10px solid #E0186C; border-radius: 26px; color: #E0186C; background: rgba(244, 238, 227, .94); --rot: -7deg; }
+.bigstamp b { display: block; font-size: 110px; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+.bigstamp span { font: italic 400 70px/1 var(--font-serif); color: var(--ink); }
+.bigstamp.frag { transform: scale(2.4) rotate(-14deg); opacity: 0; transition: transform .45s cubic-bezier(.5, 0, .75, 0), opacity .2s; }
+.bigstamp.frag.on { transform: rotate(-7deg); opacity: 1; animation: thud .5s .42s; }
+@keyframes thud { 30% { transform: rotate(-7deg) scale(.96); } 100% { transform: rotate(-7deg); } }
+
+/* =====================================================================
+   20 · BORRADOR CORREGIDO A MANO
+   ===================================================================== */
+.draft { position: absolute; left: 120px; top: 290px; width: 1300px; height: 620px; background-color: var(--white);
+    background-image: linear-gradient(90deg, transparent 98px, #FF9BB9 98px, #FF9BB9 101px, transparent 101px), repeating-linear-gradient(transparent 0 61px, #B9CBFF 61px 63px);
+    background-position: 0 0, 0 30px; border: 3px solid var(--ink); border-radius: 10px; box-shadow: 12px 12px 0 var(--cyan); padding: 40px 50px 30px 130px; --rot: -1deg; }
+.draft .dk { font: 700 17px/1 var(--font-mono); letter-spacing: .2em; color: var(--ink-soft); height: 52px; }
+.draft p { font-size: 38px; line-height: 63px; font-weight: 500; }
+.strike { background: linear-gradient(var(--pink), var(--pink)) no-repeat 0 58% / 0% 6px; transition: background-size 1.1s var(--ease); color: var(--ink); }
+.slide:has(.f-strike.on) .strike { background-size: 100% 6px; color: var(--ink-soft); }
+.fix { font: 700 52px/1.05 var(--font-hand); color: #E0186C; margin-top: 10px; --rot: -1.2deg; clip-path: inset(0 100% 0 0); transition: clip-path 2.2s var(--ease); opacity: 1 !important; }
+.fix.on { clip-path: inset(0 0 0 0); }
+.fix::before { content: '⌃ '; }
+.margin-notes { position: absolute; left: 1470px; top: 300px; width: 340px; display: grid; gap: 26px; }
+.mnote { font: 700 40px/1.05 var(--font-hand); color: #E0186C; padding: 14px 18px; border: 3px dashed #E0186C; border-radius: 14px; background: rgba(255, 253, 248, .7); }
+.mnote:nth-child(2) { --rot: 2deg; } .mnote:nth-child(3) { --rot: -2deg; }
+
+/* =====================================================================
+   21 · APRENDIZAJES
+   ===================================================================== */
+.lessons { position: absolute; left: 120px; right: 120px; top: 318px; display: grid; gap: 14px; }
+.lesson { display: grid; grid-template-columns: 110px 1fr; align-items: center; padding: 14px 0; border-bottom: 2.5px dashed rgba(23, 21, 59, .3); }
+.lesson .k { font: italic 400 92px/0.8 var(--font-serif); color: var(--ct); }
+.lesson h3 { font-size: 38px; font-weight: 800; letter-spacing: -.025em; line-height: 1.05; }
+.lesson p { font-size: 24px; line-height: 1.3; color: var(--ink-soft); margin-top: 6px; }
+
+/* =====================================================================
+   22 · RETO: ¿Y SI LOS RIELES FALLARAN?
+   ===================================================================== */
+.s-reto .left { position: absolute; left: 120px; top: 320px; width: 760px; }
+.s-reto .left p { font-size: 33px; line-height: 1.38; }
+.s-reto .left p + p { margin-top: 28px; }
+.s-reto .warn { margin-top: 34px; padding: 22px 26px; font-size: 24px; line-height: 1.4; border-left: 8px solid var(--c); background: var(--white); border-radius: 0 16px 16px 0; }
+.scene { position: absolute; left: 930px; top: 300px; width: 880px; height: 620px; }
+.rseg { position: absolute; top: 470px; height: 14px; background: var(--ink); border-radius: 4px; }
+.rseg::after { content: ''; position: absolute; left: 0; right: 0; top: 14px; height: 12px; background: repeating-linear-gradient(90deg, var(--ink) 0 10px, transparent 10px 30px); opacity: .5; }
+.rseg.a { left: 0; width: 290px; } .rseg.c { left: 590px; width: 290px; }
+.rseg.b { left: 300px; width: 280px; background: var(--c); border: 3px solid var(--ink); height: 20px; top: 467px; transform-origin: 0 50%; transition: transform .8s cubic-bezier(.5, 0, .75, 0) .1s; }
+.rseg.b .rl { position: absolute; left: 50%; top: 40px; transform: translateX(-50%); font: 700 20px/1 var(--font-mono); letter-spacing: .16em; white-space: nowrap; padding: 10px 14px; background: var(--white); border: 2.5px solid var(--ink); border-radius: 999px; }
+.rseg.b:hover { filter: brightness(1.1); }
+.rseg.b.on { transform: rotate(28deg) translateY(30px); }
+.rtrain { position: absolute; left: 70px; top: 280px; }
+.rtrain .train { transform: scale(.78); transform-origin: left bottom; }
+.rtrain .lab span { font-size: 25px; }
+.slide:has(.rseg.b.on) .rtrain .car:nth-child(1) { animation: der1 1.4s .7s var(--ease) forwards; }
+.slide:has(.rseg.b.on) .rtrain .car:nth-child(3) { animation: der2 1.4s .8s var(--ease) forwards; }
+.slide:has(.rseg.b.on) .rtrain .car:nth-child(5) { animation: der3 1.4s .9s var(--ease) forwards; }
+.slide:has(.rseg.b.on) .rtrain .car:nth-child(7) { animation: der4 1.4s .75s var(--ease) forwards; }
+.slide:has(.rseg.b.on) .rtrain .coupler { opacity: 0; transition: opacity .2s .7s; }
+@keyframes der1 { to { transform: translate(-60px, 90px) rotate(-16deg); } }
+@keyframes der2 { to { transform: translate(10px, 190px) rotate(24deg); } }
+@keyframes der3 { to { transform: translate(40px, 220px) rotate(-30deg); } }
+@keyframes der4 { to { transform: translate(60px, 40px) rotate(12deg); } }
+.scene .anno { position: absolute; left: 180px; top: 20px; font: 700 54px/1 var(--font-hand); color: #E0186C; transform: rotate(-4deg); opacity: 0; transition: opacity .6s 1.8s; }
+.slide:has(.rseg.b.on) .scene .anno { opacity: 1; }
+
+/* =====================================================================
+   23 · CIERRE
+   ===================================================================== */
+.s-end .wrap { position: absolute; left: 120px; right: 120px; top: 150px; text-align: center; }
+.s-end .back { font: italic 400 42px/1.2 var(--font-serif); color: var(--ink-soft); }
+.s-end .oldq { font-size: 56px; font-weight: 800; letter-spacing: -.03em; margin-top: 18px; }
+.s-end .ans { font-size: 112px; font-weight: 800; letter-spacing: -.045em; line-height: .98; margin-top: 46px; }
+.s-end .ans em { color: #E0186C; }
+.thanks { margin-top: 60px; display: inline-flex; gap: 24px; align-items: center; font-size: 48px; font-weight: 800; padding: 24px 46px; background: var(--ink); color: var(--paper); border-radius: 999px; box-shadow: 10px 10px 0 var(--pink); letter-spacing: -.02em; }
+.thanks em { font-family: var(--font-serif); font-weight: 400; color: var(--yellow); font-size: 58px; }
+.ref { position: absolute; left: 120px; right: 120px; bottom: 130px; text-align: center; font: 500 19px/1.45 var(--font-mono); color: var(--ink-soft); }
+
+/* ===========================================
+   CONTROLES FUERA DEL ESCENARIO
+   =========================================== */
+.progress { position: fixed; left: 0; top: 0; height: 4px; background: #FF3D8B; z-index: 1001; transition: width .6s var(--ease); }
+.deck-controls { left: auto; right: 22px; transform: none; display: flex; gap: 8px; align-items: center; opacity: 0; transition: opacity .4s; font-family: 'JetBrains Mono', monospace; }
+.deck-controls.show { opacity: 1; }
+.deck-controls button { width: 42px; height: 42px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .5); background: rgba(14, 13, 36, .7); color: #fff; font-size: 18px; cursor: pointer; }
+.deck-controls span { color: #fff; font-size: 14px; padding: 0 10px; background: rgba(14, 13, 36, .7); border-radius: 20px; line-height: 42px; }
+.mute { position: fixed; right: 18px; top: 16px; z-index: 1002; width: 44px; height: 44px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .4); background: rgba(14, 13, 36, .55); color: #fff; font-size: 19px; cursor: pointer; opacity: .35; transition: opacity .3s; }
+.mute:hover, .mute.off { opacity: 1; }
+.notes-panel { position: fixed; right: 20px; top: 70px; width: 560px; max-height: 70vh; overflow: auto; z-index: 2000; background: rgba(14, 13, 36, .95); color: #F4EEE3; border-radius: 16px; padding: 22px 26px; font: 17px/1.55 'Bricolage Grotesque', sans-serif; box-shadow: 0 20px 60px rgba(0, 0, 0, .4); display: none; }
+.notes-panel.open { display: block; }
+.notes-panel h5 { font: 700 13px/1 'JetBrains Mono', monospace; letter-spacing: .16em; color: #FFC72C; margin-bottom: 12px; display: flex; justify-content: space-between; }
+.notes-panel p + p { margin-top: 10px; }
+.slide .notes { display: none; }
+.edit-hotzone { position: fixed; top: 0; left: 0; width: 80px; height: 80px; z-index: 10000; cursor: pointer; }
+.edit-toggle { position: fixed; top: 16px; left: 16px; z-index: 10001; width: 46px; height: 46px; border-radius: 50%; border: 2px solid #fff; background: #17153B; color: #fff; font-size: 20px; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+.edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+.edit-toggle.active { background: #FF3D8B; }
+.deck-stage.editing [contenteditable="true"] { outline: 3px dashed rgba(255, 61, 139, .55); outline-offset: 6px; cursor: text; }
+.toast { position: fixed; left: 50%; top: 24px; transform: translateX(-50%) translateY(-80px); background: #17153B; color: #fff; font: 600 15px/1 'JetBrains Mono', monospace; padding: 14px 20px; border-radius: 999px; z-index: 10002; transition: transform .4s var(--ease); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="deck-viewport">
+<main class="deck-stage no-rail" id="deckStage">
+
+<!-- =====================================================================
+     1 · PORTADA
+     ===================================================================== -->
+<section class="slide s-cover active" data-station="0">
+    <div class="blob" style="--bc: var(--pink); width: 900px; height: 900px; right: -230px; top: -280px;"></div>
+    <div class="blob" style="--bc: var(--blue); width: 560px; height: 560px; right: 330px; top: 480px; animation-delay: -5s;"></div>
+    <div class="blob" style="--bc: var(--yellow); width: 420px; height: 420px; left: -150px; bottom: -190px; animation-delay: -9s;"></div>
+
+    <div class="cover-left">
+        <div class="tag rv">Producción textual · Análisis de artículo científico</div>
+        <h1 class="cover-title rv" style="--d: .15s">¿Puede ChatGPT<br>enseñarte<br><em>sin pensar</em><br>por ti?<span class="caret"></span></h1>
+        <p class="cover-sub rv" style="--d: .35s">Un viaje por el artículo <b>«Análisis de la integración de ChatGPT en el aprendizaje universitario con apoyo de blogs»</b>, de Ana Gabriela Zúñiga Zárate · <i>Comunicar</i> n.º 80 (2025)</p>
+        <ul class="team rv" style="--d: .5s">
+            <li>Camilo Andrés López González</li>
+            <li>Linda Valentina Palacio Chamorro</li>
+            <li>Vladimir Gómez Páez</li>
+        </ul>
+    </div>
+
+    <div class="ticket tap rv pop" data-act="punch" data-ping style="--d: .5s; --tint: #FFD9E8">
+        <div class="main">
+            <div class="tk-k">BOLETO DE IDA</div>
+            <h3>El tren de<br>la lectura</h3>
+            <div class="rt">
+                <div><small>ORIGEN</small><b>Una pregunta</b></div>
+                <div class="arr">→</div>
+                <div><small>DESTINO</small><b>Comprender un artículo</b></div>
+            </div>
+            <div class="meta"><span class="chip">7 estaciones</span><span class="chip">3 pasajeros</span></div>
+            <div class="stamp2">¡A BORDO!</div>
+        </div>
+        <div class="stub"><small>VAGÓN</small><b>03</b><div class="hole"></div><small>ADMITE<br>UNO</small></div>
+    </div>
+
+    <div class="parade"><div class="trk"></div><div class="mover"><div class="train-ph" data-wagons="pink,yellow,green" data-passengers="1"></div></div></div>
+
+    <aside class="notes">
+        <p>Abran con la pregunta del título en voz alta. Presenten a los integrantes.</p>
+        <p>Toquen el boleto: se perfora y aparece "¡A BORDO!". Frase: "Hoy los invitamos a un viaje: vamos a recorrer juntos un artículo científico".</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     2 · GANCHO
+     ===================================================================== -->
+<section class="slide s-hook" data-station="0">
+    <div class="hook-text">
+        <p class="big rv">Levanta la mano si esta semana le pediste algo a <span class="mark">ChatGPT</span> para una tarea.</p>
+        <p class="hook-q frag">Ahora, sé honesto: ¿lo habrías hecho sin él?</p>
+        <div class="hook-go frag">De eso trata este artículo →</div>
+    </div>
+    <div class="chat card rv pop" style="--d: .35s">
+        <div class="chat-top"><i></i><i></i><i></i><span>asistente_virtual</span></div>
+        <div class="chat-body">
+            <div class="bub me" style="--d: 1.1s">Hazme el resumen del libro para mañana, porfa</div>
+            <div class="bub ai" style="--d: 2s">¡Claro! Aquí tienes tu resumen de 300 palabras, listo para entregar ✓</div>
+            <div class="bub me" style="--d: 3.1s">Perfecto… ¿y de qué trataba el libro?</div>
+            <div class="bub ai" style="--d: 4s"><span class="typing"><span></span><span></span><span></span></span></div>
+        </div>
+    </div>
+    <aside class="notes">
+        <p>Haz la pregunta y levanta tú también la mano. Espera 2 o 3 segundos mirando al público. Deja que lean el chat (provoca risa).</p>
+        <p>Clic → la segunda pregunta, en tono más bajo. Clic → "De eso trata este artículo".</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     3 · MAPA DE LA RUTA
+     ===================================================================== -->
+<section class="slide" data-station="0">
+    <div class="head">
+        <h2 class="h2 rv">Leer no es copiar.<br><em style="color:#E0186C">Es un viaje con 7 estaciones.</em></h2>
+    </div>
+    <div class="map">
+        <svg viewBox="0 0 1680 560" aria-hidden="true">
+            <path class="draw" pathLength="1" style="--d: .3s" d="M90 300 C 210 300, 220 180, 340 180 S 470 320, 590 320 S 720 170, 840 170 S 970 330, 1090 330 S 1220 180, 1340 180 S 1470 300, 1590 300" fill="none" stroke="#17153B" stroke-width="16" stroke-linecap="round"/>
+            <path id="routePath" d="M90 300 C 210 300, 220 180, 340 180 S 470 320, 590 320 S 720 170, 840 170 S 970 330, 1090 330 S 1220 180, 1340 180 S 1470 300, 1590 300" fill="none" stroke="#F4EEE3" stroke-width="5" stroke-dasharray="16 14"/>
+            <g>
+                <rect x="-46" y="-18" width="34" height="26" rx="5" fill="#FF3D8B" stroke="#17153B" stroke-width="4"/>
+                <rect x="-8" y="-18" width="34" height="26" rx="5" fill="#FFC72C" stroke="#17153B" stroke-width="4"/>
+                <rect x="30" y="-24" width="40" height="32" rx="6" fill="#2B5BFF" stroke="#17153B" stroke-width="4"/>
+                <rect x="56" y="-36" width="9" height="14" fill="#17153B"/>
+                <animateMotion dur="16s" repeatCount="indefinite" rotate="auto"><mpath href="#routePath"/></animateMotion>
+            </g>
+        </svg>
+        <div class="mst tap" data-act="toggle" data-ping style="left: 90px; top: 300px; --sc: var(--blue)"><div class="dot">01</div><div class="nm">Explorar</div><div class="tip">¿Qué artículo elegimos y por qué? ¿De qué trata?</div></div>
+        <div class="mst tap" data-act="toggle" style="left: 340px; top: 180px; --sc: var(--pink)"><div class="dot">02</div><div class="nm">Anticipar</div><div class="tip">¿Qué esperábamos antes de leer?</div></div>
+        <div class="mst tap" data-act="toggle" style="left: 590px; top: 320px; --sc: var(--yellow)"><div class="dot">03</div><div class="nm">Localizar</div><div class="tip">¿Cómo está organizado? ¿Cómo hallamos sus partes?</div></div>
+        <div class="mst tap" data-act="toggle" style="left: 840px; top: 170px; --sc: var(--green)"><div class="dot">04</div><div class="nm">Interpretar</div><div class="tip">¿Qué función cumple cada parte?</div></div>
+        <div class="mst tap" data-act="toggle" style="left: 1090px; top: 330px; --sc: var(--orange)"><div class="dot">05</div><div class="nm">Relacionar</div><div class="tip">¿Y la Ingeniería de Sistemas?</div></div>
+        <div class="mst tap" data-act="toggle" style="left: 1340px; top: 180px; --sc: var(--cyan)"><div class="dot">06</div><div class="nm">Comprobar</div><div class="tip">¿Acertamos con la hipótesis?</div></div>
+        <div class="mst tap" data-act="toggle" style="left: 1590px; top: 300px; --sc: var(--violet)"><div class="dot">07</div><div class="nm">Explicar</div><div class="tip">¿Qué aprendimos de leer ciencia?</div></div>
+    </div>
+    <aside class="notes">
+        <p>La secuencia que pidió la profesora convertida en ruta: explorar, anticipar, localizar, interpretar, relacionar, comprobar y explicar.</p>
+        <p>Toquen algunas estaciones para mostrar su pregunta. Frase: "No vinimos a copiar el artículo: vinimos a recorrerlo". El siguiente clic arranca el tren.</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     4 · EXPLORAR · FICHA DEL ARTÍCULO
+     ===================================================================== -->
+<section class="slide s-ficha" data-station="1" data-q="1">
+    <div class="left">
+        <h2 class="h2 rv">El artículo<br>que <em>elegimos</em></h2>
+        <p class="lead rv" style="--d: .15s">Una investigación aplicada, publicada en <b>2025</b> en una revista científica internacional.</p>
+        <p class="lead rv" style="--d: .3s; font-size: 28px;">Primer paso: <b>explorar</b>. Antes de leer a fondo, miramos título, autora, revista y palabras clave.</p>
+    </div>
+    <div class="idflip flip frag keep tap" data-ping style="--d: .2s">
+        <div class="in">
+            <div class="face front">
+                <div class="band"><span>COMUNICAR · N.º 80 · VOL. XXXIII</span><span>2025 · pp. 60–74</span></div>
+                <div class="inner">
+                    <h3>Análisis de la integración de ChatGPT en el aprendizaje universitario con apoyo de blogs</h3>
+                    <div class="au">Dra. Ana Gabriela Zúñiga Zárate<span>Euncet Business School, España</span></div>
+                    <div class="kw"><span class="chip">Inteligencia artificial</span><span class="chip">Educación universitaria</span><span class="chip">ChatGPT</span><span class="chip">Prompt</span><span class="chip">Blogs</span><span class="chip">Asistente virtual</span></div>
+                </div>
+                <div class="turn">↻ FICHA TÉCNICA</div>
+            </div>
+            <div class="face back">
+                <div class="band"><span>FICHA TÉCNICA</span><span>DOI 10.58262/C80-2025-06</span></div>
+                <div class="inner">
+                    <dl class="fields">
+                        <div><dt>Tipo de estudio</dt><dd>Investigación aplicada · enfoque mixto (cuantitativo + cualitativo)</dd></div>
+                        <div><dt>Muestra</dt><dd>120 estudiantes de 2.º año de Marketing Digital</dd></div>
+                        <div><dt>Duración</dt><dd>12 semanas</dd></div>
+                        <div><dt>Asignatura</dt><dd>Tecnología Web y Bases de Datos</dd></div>
+                    </dl>
+                    <div class="idfoot"><span>Recibido: 28-12-2024</span><span>Publicado: 20-04-2025</span></div>
+                </div>
+                <div class="turn">↻ PORTADA</div>
+            </div>
+        </div>
+    </div>
+    <aside class="notes">
+        <p>Toquen la ficha para voltearla. Por delante: título, autora y palabras clave. Por detrás: los datos técnicos.</p>
+        <p>Destaquen 3 datos: es de 2025, de la revista Comunicar, y estudia a 120 estudiantes durante 12 semanas.</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     5 · EXPLORAR · ¿POR QUÉ ESTE ARTÍCULO?
+     ===================================================================== -->
+<section class="slide" data-station="1" data-q="1">
+    <div class="head">
+        <h2 class="h2 rv">¿Por qué <em>este</em> artículo?</h2>
+        <p class="lead rv" style="--d: .15s">Tres razones nos subieron a este tren:</p>
+    </div>
+    <div class="why">
+        <div class="flip frag keep tap" data-ping style="--rot: -2deg; --d: .3s">
+            <div class="in">
+                <div class="face front" style="background: #FFEFB8"><div class="n">01</div><h3>Nos toca de cerca</h3><div class="turn">↻ VER</div></div>
+                <div class="face back" style="background: #FFEFB8"><div class="n">01</div><p>Usamos ChatGPT casi todos los días para estudiar. Queríamos saber si nos ayuda a aprender… o nos vuelve dependientes.</p></div>
+            </div>
+        </div>
+        <div class="flip frag keep tap" style="--rot: 1.5deg; --d: .45s">
+            <div class="in">
+                <div class="face front" style="background: #FFD9E8"><div class="n">02</div><h3>Es actual y confiable</h3><div class="turn">↻ VER</div></div>
+                <div class="face back" style="background: #FFD9E8"><div class="n">02</div><p>Salió en 2025 en <i>Comunicar</i>, una revista científica con ISSN y DOI, especializada en educación y medios.</p></div>
+            </div>
+        </div>
+        <div class="flip frag keep tap" style="--rot: -1deg; --d: .6s">
+            <div class="in">
+                <div class="face front" style="background: #DCE5FF"><div class="n">03</div><h3>Habla de nuestra carrera</h3><div class="turn">↻ VER</div></div>
+                <div class="face back" style="background: #DCE5FF"><div class="n">03</div><p>Se hizo en una materia técnica (Tecnología Web y Bases de Datos), muy cercana a Ingeniería de Sistemas.</p></div>
+            </div>
+        </div>
+    </div>
+    <aside class="notes">
+        <p>Toquen cada nota para voltearla (o usen la flecha). Cuenten la primera como experiencia propia: "¿Quién no le ha pedido ayuda a ChatGPT con una tarea?".</p>
+        <p>(Si sus razones reales fueron otras, edítenlas con la tecla E.)</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     6 · EXPLORAR · ¿DE QUÉ TRATA?
+     ===================================================================== -->
+<section class="slide" data-station="1" data-q="2">
+    <div class="head">
+        <h2 class="h2 rv">Una investigadora llevó ChatGPT al aula…<br><em>y le sumó un blog.</em></h2>
+    </div>
+    <div class="stats3">
+        <div class="stat card tap rv" data-act="recount" style="--d: .3s; --sh: var(--blue)"><div class="val"><span class="count" data-to="120">0</span></div><p>estudiantes de segundo año de Marketing Digital</p></div>
+        <div class="stat card tap rv" data-act="recount" style="--d: .45s; --sh: var(--pink)"><div class="val"><span class="count" data-to="12">0</span> <small>semanas</small></div><p>usando ChatGPT como asistente virtual en clase</p></div>
+        <div class="stat card tap rv" data-act="recount" style="--d: .6s; --sh: var(--yellow)"><div class="val"><span class="count" data-to="2">0</span> <small>miradas</small></div><p>números (tiempo, calidad) + lo que los estudiantes escribieron en sus blogs</p></div>
+    </div>
+    <div class="subj rv" style="--d: .8s"><span class="chip" style="background: var(--tint)">Asignatura</span> Tecnología Web y Bases de Datos <span class="chip" style="background: var(--tint); margin-left: 18px;">Método</span> mixto: cuantitativo + cualitativo</div>
+    <aside class="notes">
+        <p>Resumen en una frase: "La autora usó ChatGPT como asistente en una materia y pidió a los estudiantes escribir en un blog cómo lo usaban".</p>
+        <p>Pueden tocar cualquier número para que vuelva a contar.</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     7 · EXPLORAR · EL DILEMA
+     ===================================================================== -->
+<section class="slide" data-station="1" data-q="2">
+    <div class="head">
+        <h2 class="h2 rv" style="font-size: 80px;">El problema: <em>un arma de doble filo</em></h2>
+    </div>
+    <p class="dq rv" style="--d: .2s">¿Cómo aprovechar ChatGPT en clase sin crear dependencia?</p>
+    <div class="scale rv" style="--d: .35s">
+        <div class="pivot"></div>
+        <div class="beam"><div class="weight">✎ BLOG</div></div>
+        <div class="pan l card">
+            <h4>LO QUE APORTA</h4>
+            <ul><li>Corrige errores rápido</li><li>Explica conceptos difíciles</li><li>Ahorra tiempo</li></ul>
+        </div>
+        <div class="pan r card">
+            <h4>EL RIESGO</h4>
+            <ul><li>Depender de la IA</li><li>Menos pensamiento crítico</li><li>Menos autonomía</li></ul>
+        </div>
+    </div>
+    <div class="addblog frag keep tap f-balance" data-ping data-sfx="thud"><span class="a">＋ Añadir el blog de reflexión</span><span class="b">La propuesta: <em>ChatGPT + blog de reflexión</em></span></div>
+    <aside class="notes">
+        <p>La balanza está inclinada hacia el riesgo. Expliquen los dos lados.</p>
+        <p>Toquen "Añadir el blog": cae el bloque y la balanza se equilibra. Esa es la propuesta de la autora: usar ChatGPT y, a la vez, escribir en un blog cómo se usa (reflexionar sobre el propio aprendizaje).</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     8 · EXPLORAR · LAS 3 FASES (vagones)
+     ===================================================================== -->
+<section class="slide" data-station="1" data-q="2">
+    <div class="head">
+        <h2 class="h2 rv">Cómo lo hicieron: <em>3 vagones</em></h2>
+    </div>
+    <p class="note-small rv" style="--d: .2s">Resumido en la Tabla 1 del artículo</p>
+    <div class="ground rv" style="--d: .1s"></div>
+    <div class="phases">
+        <div class="ph frag roll">
+            <div class="box card" style="--sh: var(--blue)">
+                <div class="top" style="background: #DCE5FF"><span>FASE 1</span><span>APRENDER</span></div>
+                <div class="bd"><h3>Capacitación</h3><p>Aprendieron a escribir buenos <b>prompts</b>: instrucciones claras para pedirle cosas a la IA.</p>
+                    <div class="ex"><span>&gt;</span> Explícame este tema paso a paso</div></div>
+            </div>
+            <i class="wheel wa"></i><i class="wheel wb"></i>
+        </div>
+        <div class="ph-cp frag"></div>
+        <div class="ph frag roll">
+            <div class="box card" style="--sh: var(--green)">
+                <div class="top" style="background: #CDEFE3"><span>FASE 2</span><span>USAR</span></div>
+                <div class="bd"><h3>Implementación</h3><p>Usaron ChatGPT como asistente en las tareas reales de la materia.</p>
+                    <div class="ex"><span>&gt;</span> ¿Por qué no funciona mi ejercicio?</div></div>
+            </div>
+            <i class="wheel wa"></i><i class="wheel wb"></i>
+        </div>
+        <div class="ph-cp frag"></div>
+        <div class="ph frag roll">
+            <div class="box card" style="--sh: var(--pink)">
+                <div class="top" style="background: #FFD9E8"><span>FASE 3</span><span>PENSAR</span></div>
+                <div class="bd"><h3>Reflexión</h3><p>Escribieron en un <b>blog</b> (Blogger) cómo usaron la IA y qué aprendieron.</p>
+                    <div class="ex"><span>✎</span> Hoy entendí por qué me equivocaba…</div></div>
+            </div>
+            <i class="wheel wa"></i><i class="wheel wb"></i>
+        </div>
+    </div>
+    <aside class="notes">
+        <p>Cada clic engancha un vagón. Fórmula fácil: aprender a pedir, usar y pensar sobre lo que se hizo.</p>
+        <p>Los textos negros son ejemplos ilustrativos, no citas del artículo.</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     9 · ANTICIPAR · HIPÓTESIS SELLADA
+     ===================================================================== -->
+<section class="slide s-hyp" data-station="2" data-q="7">
+    <div class="envelope card rv from-r" style="--d: .25s">
+        <div class="lbl">HIPÓTESIS INICIAL</div>
+        <p class="htxt">Si se integra ChatGPT como asistente virtual en una asignatura técnica y se complementa con blogs de reflexión, los estudiantes trabajarán <b class="h1c">más rápido</b> y con <b class="h2c">mejor calidad técnica</b>, y el riesgo de dependencia de la IA <b class="h3c">se reducirá gracias a la reflexión</b> metacognitiva.</p>
+        <div class="seal frag keep tap" data-ping data-sfx="tear" style="--d: .9s"><span>H</span></div>
+    </div>
+    <div class="left">
+        <h2 class="h2 rv">Antes de leer todo, <em>apostamos.</em></h2>
+        <p class="lead rv" style="--d: .15s">Solo con el <b>título</b>, el <b>resumen</b> y las <b>palabras clave</b>, escribimos una hipótesis.</p>
+        <div class="preds">
+            <div class="pred frag"><span class="chip" style="background: #DCE5FF">P1</span> Trabajarán más rápido</div>
+            <div class="pred frag"><span class="chip" style="background: #CDEFE3">P2</span> Con mejor calidad técnica</div>
+            <div class="pred frag"><span class="chip" style="background: #FFD9E8">P3</span> Y el blog reducirá la dependencia</div>
+        </div>
+        <p class="sealnote frag">La guardamos… y la revisamos en la estación 06.</p>
+    </div>
+    <aside class="notes">
+        <p>Anticipar = hacer una apuesta antes de leer. Toquen el sello para romperlo y leer la hipótesis.</p>
+        <p>Luego, con clics, aparecen las tres predicciones. Díganlo con misterio: "¿Habremos acertado?".</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     10 · LOCALIZAR · EL ARTÍCULO ES UN TREN
+     ===================================================================== -->
+<section class="slide" data-station="3" data-q="3" data-hook="org">
+    <div class="head">
+        <h2 class="h2 rv" style="font-size: 80px;">¿Cómo está organizado? <em>Como un tren.</em></h2>
+    </div>
+    <div class="wpop card rv" id="wpop" style="--d: .2s">
+        <div class="big-tag" id="wpTag"><small>ARTÍCULO</small><b>7</b><small>PARTES</small></div>
+        <div class="content" id="wpBody">
+            <h3>Cada vagón es una sección</h3>
+            <p>Van en orden y enganchados entre sí. Toquen un vagón para ver qué lleva dentro.</p>
+        </div>
+    </div>
+    <div class="cohesion rv" style="--d: 2.4s">los enganches = la cohesión del texto
+        <svg viewBox="0 0 80 180"><path d="M20 4 C 10 60, 20 120, 40 170 M 26 156 L 40 172 L 52 154" fill="none" stroke="#E0186C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="orgtrack"></div>
+    <div class="orgtrain">
+        <div class="train-ph" data-dir="left" data-org="1"></div>
+    </div>
+    <aside class="notes">
+        <p>El tren entra solo. Idea central: "Un artículo científico es como un tren: la locomotora (título y resumen) jala todo, y cada vagón es una sección que va en orden".</p>
+        <p>Toquen los vagones uno por uno (o usen la flecha): arriba aparece qué lleva cada uno y qué pregunta responde. Señalen la nota rosa: los enganches son la cohesión; si una sección no conecta con la siguiente, el texto se desarma.</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     11 · LOCALIZAR · LA LUPA (¿cómo identificamos los componentes?)
+     ===================================================================== -->
+<section class="slide s-lupa" data-station="3" data-q="4">
+    <div class="pagewrap rv" style="--d: .1s"><div class="page" id="lupaPage">
+        <div class="pg pg-blur"></div>
+        <div class="pg pg-sharp">
+            <div class="pg-journal">COMUNICAR · N.º 80 · 2025 · PP. 60–74</div>
+            <div class="pg-title"><mark class="m1">Análisis de la integración de ChatGPT en el aprendizaje universitario con apoyo de blogs</mark></div>
+            <div class="pg-author">Ana Gabriela Zúñiga Zárate</div>
+            <div class="pg-h"><mark class="m2">Resumen</mark></div>
+            <div class="bars"><i></i><i></i><i style="width: 70%"></i></div>
+            <div class="pg-kw"><mark class="m2">Palabras clave:</mark> inteligencia artificial, ChatGPT, prompt, blogs</div>
+            <div class="pg-h"><mark class="m3">1. Introducción</mark></div>
+            <div class="bars"><i></i><i></i><i style="width: 80%"></i></div>
+            <div class="pg-h"><mark class="m4">2. Metodología</mark></div>
+            <div class="bars"><i></i><i style="width: 60%"></i></div>
+            <div class="pg-tab"><mark class="m5">Tabla 1.</mark> Fases del estudio<div class="tb"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+            <div class="pg-h"><mark class="m4">3. Resultados</mark></div>
+            <div class="bars"><i></i><i style="width: 75%"></i></div>
+            <div class="pg-tab"><mark class="m5">Tabla 2.</mark> Con y sin ChatGPT</div>
+            <div class="pg-h"><mark class="m3">4. Discusión</mark> · <mark class="m3">5. Conclusión</mark></div>
+            <div class="bars"><i></i><i style="width: 50%"></i></div>
+        </div>
+        <div class="lens"></div>
+    </div></div>
+    <div class="right">
+        <h2 class="h2 rv" style="font-size: 76px;">¿Cómo encontramos <em>las piezas</em>?</h2>
+        <div class="steps">
+            <div class="step card frag" style="--sh: var(--blue)"><div class="nn" style="background: #DCE5FF">1</div><div><h3>Exploramos</h3><p>Título, resumen y palabras clave: la primera idea del texto.</p></div></div>
+            <div class="step card frag" style="--sh: var(--pink)"><div class="nn" style="background: #FFD9E8">2</div><div><h3>Seguimos las pistas</h3><p>Títulos numerados, tablas y figuras: las señales del camino.</p></div></div>
+            <div class="step card frag" style="--sh: var(--green)"><div class="nn" style="background: #CDEFE3">3</div><div><h3>Nos dividimos</h3><p>Cada integrante leyó a fondo una parte e hizo una observación crítica.</p></div></div>
+            <div class="step card frag" style="--sh: var(--orange)"><div class="nn" style="background: #FFDCCB">4</div><div><h3>Lo armamos juntos</h3><p>Una tabla colectiva: cada componente, dónde está y para qué sirve.</p></div></div>
+        </div>
+    </div>
+    <aside class="notes">
+        <p>Pasen el mouse por la hoja: la lupa revela, resaltadas, las pistas que usamos (títulos numerados, resumen, palabras clave, tablas). Si no la tocan, la lupa se mueve sola.</p>
+        <p>Con clics aparecen los 4 pasos. Mensaje: no buscamos "a ciegas"; el texto mismo deja señales.</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     12 · LOCALIZAR · DIVIDE Y VENCERÁS
+     ===================================================================== -->
+<section class="slide" data-station="3" data-q="4">
+    <div class="head">
+        <h2 class="h2 rv">Divide y <em>vencerás</em></h2>
+    </div>
+    <div class="team3">
+        <div class="flip frag keep tap" data-ping style="--sh: var(--pink); --avc: #FFD9E8; --d: .3s">
+            <div class="in">
+                <div class="face front"><div class="av">L</div><h3>Linda</h3><div class="sec">Introducción y marco teórico<br>§ 1 a 1.4</div><div class="turn">↻ SU REVISIÓN</div></div>
+                <div class="face back"><h4>Linda opina…</h4><div class="pm">
+                    <div class="p"><i>+</i><span>La autora no solo elogia a ChatGPT: desde el inicio advierte sobre la dependencia y explica qué es un <b>prompt</b>.</span></div>
+                    <div class="m"><i>−</i><span>Cita muchísimos autores seguidos: a ratos no se sabe qué idea es de ella y cuál de otros.</span></div></div></div>
+            </div>
+        </div>
+        <div class="flip frag keep tap" style="--sh: var(--blue); --avc: #DCE5FF; --d: .45s">
+            <div class="in">
+                <div class="face front"><div class="av">C</div><h3>Camilo</h3><div class="sec">Metodología y resultados<br>§ 2 y 3</div><div class="turn">↻ SU REVISIÓN</div></div>
+                <div class="face back"><h4>Camilo opina…</h4><div class="pm">
+                    <div class="p"><i>+</i><span>Las tres fases están claras y resumidas en la Tabla 1. No se basó solo en números: también leyó los blogs.</span></div>
+                    <div class="m"><i>−</i><span>¿Cómo midieron el 30 % y el 25 %? ¿Quiénes eran el grupo de comparación? No queda claro.</span></div></div></div>
+            </div>
+        </div>
+        <div class="flip frag keep tap" style="--sh: var(--green); --avc: #CDEFE3; --d: .6s">
+            <div class="in">
+                <div class="face front"><div class="av">V</div><h3>Vladimir</h3><div class="sec">Discusión, limitaciones y conclusión<br>§ 4 y 5</div><div class="turn">↻ SU REVISIÓN</div></div>
+                <div class="face back"><h4>Vladimir opina…</h4><div class="pm">
+                    <div class="p"><i>+</i><span>La autora es honesta con lo malo: sesgos de la IA y estudiantes que no podían resolver problemas sin ella.</span></div>
+                    <div class="m"><i>−</i><span>La conclusión repite varias veces la misma idea sobre futuros estudios.</span></div></div></div>
+            </div>
+        </div>
+    </div>
+    <aside class="notes">
+        <p>Cada integrante voltea su propia tarjeta y la cuenta en unos 20 segundos: lo que le gustó (+) y lo que criticó (−).</p>
+        <p>Mensaje: leer críticamente es ver lo bueno y lo flojo de un texto.</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     13 · INTERPRETAR · EL ARRANQUE
+     ===================================================================== -->
+<section class="slide" data-station="4" data-q="5">
+    <div class="head">
+        <h2 class="h2 rv" style="font-size: 80px;">El arranque: <em>lo que prepara el viaje</em></h2>
+    </div>
+    <div class="fgrid" style="grid-template-columns: repeat(5, 1fr)">
+        <div class="flip frag keep tap" data-ping style="--d: .2s"><div class="in">
+            <div class="face front"><span class="loc">Portada</span><h3>Título y resumen</h3><div class="tren"><small>EN EL TREN</small><div>el letrero de destino</div></div></div>
+            <div class="face back"><small>FUNCIÓN</small><p>Anticipan el tema y el contenido de toda la investigación.</p><h4>Título y resumen</h4></div></div></div>
+        <div class="flip frag keep tap" style="--d: .3s"><div class="in">
+            <div class="face front"><span class="loc">Sección 1</span><h3>Intro&shy;ducción</h3><div class="tren"><small>EN EL TREN</small><div>el andén de salida</div></div></div>
+            <div class="face back"><small>FUNCIÓN</small><p>Pone en contexto el uso de ChatGPT en la asignatura.</p><h4>Introducción</h4></div></div></div>
+        <div class="flip frag keep tap" style="--d: .4s"><div class="in">
+            <div class="face front"><span class="loc">Secc. 1.1 a 1.4</span><h3>Marco teórico</h3><div class="tren"><small>EN EL TREN</small><div>el mapa de rutas</div></div></div>
+            <div class="face back"><small>FUNCIÓN</small><p>Define los conceptos clave: IA generativa, tendencias, prompts y blogs.</p><h4>Marco teórico</h4></div></div></div>
+        <div class="flip frag keep tap" style="--d: .5s"><div class="in">
+            <div class="face front"><span class="loc">Intro y resumen</span><h3>Problema</h3><div class="tren"><small>EN EL TREN</small><div>la vía bloqueada</div></div></div>
+            <div class="face back"><small>FUNCIÓN</small><p>Plantea qué hay que resolver: aprovechar ChatGPT sin crear dependencia.</p><h4>Problema</h4></div></div></div>
+        <div class="flip frag keep tap" style="--d: .6s"><div class="in">
+            <div class="face front"><span class="loc">Resumen e intro</span><h3>Objetivo</h3><div class="tren"><small>EN EL TREN</small><div>la estación de llegada</div></div></div>
+            <div class="face back"><small>FUNCIÓN</small><p>Dice a dónde quiere llegar: evaluar ChatGPT como asistente, combinado con blogs.</p><h4>Objetivo</h4></div></div></div>
+    </div>
+    <aside class="notes">
+        <p>Cada tarjeta muestra la parte del artículo y su equivalente en el tren (en rosa). Al voltearla aparece su función real.</p>
+        <p>Ejemplo: "El marco teórico es el mapa de rutas: antes de viajar, explica los conceptos que vamos a usar".</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     14 · INTERPRETAR · EL RECORRIDO
+     ===================================================================== -->
+<section class="slide" data-station="4" data-q="5">
+    <div class="head">
+        <h2 class="h2 rv" style="font-size: 80px;">El recorrido: <em>cómo se hizo el viaje</em></h2>
+    </div>
+    <div class="fgrid" style="grid-template-columns: repeat(3, 1fr)">
+        <div class="flip frag keep tap" data-ping style="--d: .2s"><div class="in">
+            <div class="face front"><span class="loc">Sección 2.1</span><h3>Variables</h3><div class="tren"><small>EN EL TREN</small><div>el tablero de mandos: lo que se mide en el viaje</div></div></div>
+            <div class="face back"><small>FUNCIÓN</small><p>Definen qué se mide: el tiempo, la calidad de los trabajos y otras variables del estudio.</p><h4>Variables</h4></div></div></div>
+        <div class="flip frag keep tap" style="--d: .35s"><div class="in">
+            <div class="face front"><span class="loc">Sección 2.1 · Tabla 1</span><h3>Metodología</h3><div class="tren"><small>EN EL TREN</small><div>los rieles: el camino, paso a paso</div></div></div>
+            <div class="face back"><small>FUNCIÓN</small><p>Describe las tres fases del estudio: capacitación, implementación y reflexión.</p><h4>Metodología</h4></div></div></div>
+        <div class="flip frag keep tap" style="--d: .5s"><div class="in">
+            <div class="face front"><span class="loc">Sección 2.2</span><h3>Herramientas de reflexión</h3><div class="tren"><small>EN EL TREN</small><div>la bitácora del viaje</div></div></div>
+            <div class="face back"><small>FUNCIÓN</small><p>Justifica el uso de Blogger y muestra ejemplos reales de prompts y de entradas de blog.</p><h4>Herramientas de reflexión</h4></div></div></div>
+    </div>
+    <aside class="notes">
+        <p>Es el corazón del artículo. Insistan en la metodología = los rieles: sin ella no sabríamos de dónde salen los resultados (lo retomamos en el reto final).</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     15 · INTERPRETAR · LA LLEGADA
+     ===================================================================== -->
+<section class="slide" data-station="4" data-q="5">
+    <div class="head">
+        <h2 class="h2 rv" style="font-size: 80px;">La llegada: <em>lo que se encontró</em></h2>
+    </div>
+    <div class="fgrid" style="grid-template-columns: repeat(4, 1fr)">
+        <div class="flip frag keep tap" data-ping style="--d: .2s"><div class="in">
+            <div class="face front"><span class="loc">Sección 3 · Tabla 2</span><h3>Resultados</h3><div class="tren"><small>EN EL TREN</small><div>la carga que llegó</div></div></div>
+            <div class="face back"><small>FUNCIÓN</small><p>Presentan los datos: números y lo que escribieron los estudiantes.</p><h4>Resultados</h4></div></div></div>
+        <div class="flip frag keep tap" style="--d: .3s"><div class="in">
+            <div class="face front"><span class="loc">Sección 4</span><h3>Discusión</h3><div class="tren"><small>EN EL TREN</small><div>comparar con otros viajes</div></div></div>
+            <div class="face back"><small>FUNCIÓN</small><p>Compara los hallazgos con otros estudios y explica qué significan.</p><h4>Discusión</h4></div></div></div>
+        <div class="flip frag keep tap" style="--d: .4s"><div class="in">
+            <div class="face front"><span class="loc">Secc. 4.2 y 4.3</span><h3>Limitaciones y propuestas</h3><div class="tren"><small>EN EL TREN</small><div>el reporte de averías… y cómo repararlas</div></div></div>
+            <div class="face back"><small>FUNCIÓN</small><p>Reconocen la dependencia y los sesgos de la IA, y proponen cómo reducirlos.</p><h4>Limitaciones</h4></div></div></div>
+        <div class="flip frag keep tap" style="--d: .5s"><div class="in">
+            <div class="face front"><span class="loc">Sección 5</span><h3>Conclusión</h3><div class="tren"><small>EN EL TREN</small><div>la llegada y las próximas rutas</div></div></div>
+            <div class="face back"><small>FUNCIÓN</small><p>Resume los aportes y propone futuras investigaciones.</p><h4>Conclusión</h4></div></div></div>
+    </div>
+    <aside class="notes">
+        <p>Destaquen las limitaciones: un buen texto científico admite sus fallas. Eso le da credibilidad.</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     16 · RELACIONAR · FRASE CENTRAL
+     ===================================================================== -->
+<section class="slide s-quote" data-station="5" data-q="6">
+    <p class="qbig rv">Llegar al destino<br><span class="neq">≠</span> <em>conocer el camino.</em></p>
+    <p class="sub rv" style="--d: .4s">«Una cosa es que el código funcione y otra entender por qué funciona.»</p>
+    <p class="attr rv" style="--d: .6s">— Vladimir, sobre la discusión del artículo</p>
+    <aside class="notes">
+        <p>Lámina de impacto: díganla despacio. "Con ChatGPT uno puede llegar al resultado… sin saber cómo llegó".</p>
+        <p>Puente: "Y eso es justo lo que conecta este artículo con nuestra carrera".</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     17 · RELACIONAR · CON INGENIERÍA DE SISTEMAS
+     ===================================================================== -->
+<section class="slide" data-station="5" data-q="6">
+    <div class="head">
+        <h2 class="h2 rv" style="font-size: 82px;">¿Y qué tiene que ver con<br><em>Ingeniería de Sistemas</em>? Mucho.</h2>
+    </div>
+    <div class="links">
+        <div class="card frag"><div class="ln">01</div><h3>Saber pedir es saber escribir</h3><p>Un buen prompt es un texto claro y preciso, como un buen requerimiento.</p></div>
+        <div class="card frag"><div class="ln">02</div><h3>Verificar antes de confiar</h3><p>La IA se equivoca y tiene sesgos: hay que revisar lo que produce.</p></div>
+        <div class="card frag"><div class="ln">03</div><h3>Pensar sin la herramienta</h3><p>Resolver problemas por cuenta propia, aunque la IA no esté.</p></div>
+        <div class="card frag"><div class="ln">04</div><h3>Escribir para entender</h3><p>El blog es como un diario de trabajo: documentar es parte del oficio (§ 4.4.1).</p></div>
+        <div class="card frag"><div class="ln">05</div><h3>Ética y responsabilidad</h3><p>La dependencia tecnológica y los sesgos también son responsabilidad profesional.</p></div>
+    </div>
+    <aside class="notes">
+        <p>Un clic por conexión. Fíjense que la 01 y la 04 conectan con producción textual: escribir bien también es una habilidad de ingeniero.</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     18 · COMPROBAR · LOS RESULTADOS (adivina y voltea)
+     ===================================================================== -->
+<section class="slide" data-station="6" data-q="7">
+    <div class="head">
+        <h2 class="h2 rv">¿Qué encontró? <em>Adivinen primero.</em></h2>
+    </div>
+    <p class="src rv" style="--d: .2s">Sección 3 · comparación con y sin ChatGPT</p>
+    <div class="nums">
+        <div class="flip frag keep tap" data-ping style="--sh: var(--blue); --d: .2s"><div class="in">
+            <div class="face front"><div class="qm">?</div><p>¿Cuánto cambió el tiempo para hacer las tareas?</p></div>
+            <div class="face back"><div class="v down"><span class="count" data-to="30" data-prefix="−" data-suffix="%">0</span></div><p>de <b>tiempo</b> para completar las tareas</p></div></div></div>
+        <div class="flip frag keep tap" style="--sh: var(--green); --d: .3s"><div class="in">
+            <div class="face front"><div class="qm">?</div><p>¿Mejoró la calidad de los trabajos?</p></div>
+            <div class="face back"><div class="v up"><span class="count" data-to="25" data-prefix="+" data-suffix="%">0</span></div><p>en <b>calidad y comprensión</b> del código</p></div></div></div>
+        <div class="flip frag keep tap" style="--sh: var(--green); --d: .4s"><div class="in">
+            <div class="face front"><div class="qm">?</div><p>¿Y los diseños de páginas web?</p></div>
+            <div class="face back"><div class="v up"><span class="count" data-to="35" data-prefix="+" data-suffix="%">0</span></div><p>de <b>coherencia</b> en el diseño web</p></div></div></div>
+        <div class="flip frag keep tap" style="--sh: var(--blue); --d: .5s"><div class="in">
+            <div class="face front"><div class="qm">?</div><p>¿Cometieron más o menos errores?</p></div>
+            <div class="face back"><div class="v down"><span class="count" data-to="25" data-prefix="−" data-suffix="%">0</span></div><p>de <b>errores</b> en bases de datos frente al grupo control</p></div></div></div>
+        <div class="flip frag keep tap" style="--sh: var(--c); --d: .6s"><div class="in">
+            <div class="face front"><div class="qm">?</div><p>¿Cuántos sintieron que les ayudó a corregir errores?</p></div>
+            <div class="face back"><div class="v pct"><span class="count" data-to="72" data-suffix="%">0</span></div><p>dijo que ChatGPT le ayudó a <b>corregir errores</b> más rápido</p></div></div></div>
+        <div class="flip frag keep tap" style="--sh: var(--c); --d: .7s"><div class="in">
+            <div class="face front"><div class="qm">?</div><p>¿Cuántos exploraron temas más avanzados?</p></div>
+            <div class="face back"><div class="v pct"><span class="count" data-to="68" data-suffix="%">0</span></div><p>dijo que le permitió explorar <b>conceptos avanzados</b></p></div></div></div>
+    </div>
+    <aside class="notes">
+        <p>¡Momento de participación! Lean la pregunta de cada tarjeta, pidan al público que adivine y luego tóquenla para revelar el número.</p>
+        <p>Las dos últimas son percepción de los estudiantes, no mediciones.</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     19 · COMPROBAR · VEREDICTO
+     ===================================================================== -->
+<section class="slide" data-station="6" data-q="7">
+    <div class="head">
+        <h2 class="h2 rv" style="font-size: 104px;">¿Acertamos?</h2>
+    </div>
+    <div class="verdict">
+        <div class="vrow card frag" data-sfx="stamp" style="--sh: var(--green)">
+            <div class="pp"><small>P1</small>Trabajarán más rápido</div>
+            <div class="ev">El tiempo para completar tareas bajó un <b>30 %</b>.</div>
+            <div class="stamp ok">✓ Acertamos</div>
+        </div>
+        <div class="vrow card frag" data-sfx="stamp" style="--sh: var(--green)">
+            <div class="pp"><small>P2</small>Con mejor calidad técnica</div>
+            <div class="ev">Calidad <b>+25 %</b>, diseño web <b>+35 %</b> y <b>25 % menos</b> errores en bases de datos.</div>
+            <div class="stamp ok">✓ Acertamos</div>
+        </div>
+        <div class="vrow card frag" data-sfx="stamp" style="--sh: var(--yellow)">
+            <div class="pp"><small>P3</small>El blog reducirá la dependencia</div>
+            <div class="ev">La dependencia <b>no desapareció</b>: algunos no podían resolver sin la IA. El efecto del blog <b>no se midió directamente</b>.</div>
+            <div class="stamp mid">◐ A medias</div>
+        </div>
+    </div>
+    <div class="bigstamp frag" data-sfx="bigstamp"><b>CONFIRMADA</b><span>…con matices</span></div>
+    <aside class="notes">
+        <p>Retomen el sobre de la estación 2. Un clic por predicción (suena el sello) y al final el sello grande.</p>
+        <p>Frase: "Acertamos en lo que se podía medir, pero el artículo nos obligó a matizar la parte de la dependencia".</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     20 · COMPROBAR · EL BORRADOR CORREGIDO
+     ===================================================================== -->
+<section class="slide" data-station="6" data-q="7">
+    <div class="head">
+        <h2 class="h2 rv" style="font-size: 80px;">¿Qué tuvimos que <em>corregir</em>?</h2>
+    </div>
+    <span class="frag trig f-strike" data-sfx="scribble"></span>
+    <div class="draft rv" style="--d: .2s">
+        <div class="dk">HIPÓTESIS · BORRADOR 1</div>
+        <p>Si se integra ChatGPT como asistente y se complementa con blogs de reflexión, los estudiantes trabajarán más rápido y con mejor calidad técnica, <span class="strike">y la dependencia de la IA se reducirá gracias a la reflexión.</span></p>
+        <div class="fix frag" data-sfx="scribble">pero la dependencia no desaparece: el blog ayuda a reflexionar sobre ella, y su efecto todavía hay que medirlo.</div>
+    </div>
+    <div class="margin-notes">
+        <div class="mnote frag" data-sfx="scribble">sin pruebas estadísticas</div>
+        <div class="mnote frag" data-sfx="scribble">¿cómo se formó el grupo control?</div>
+        <div class="mnote frag" data-sfx="scribble">efecto del blog = interpretación</div>
+    </div>
+    <aside class="notes">
+        <p>Producción textual pura: la hipótesis también tiene borradores. Clic → se tacha la parte equivocada. Clic → se escribe la corrección a mano.</p>
+        <p>Luego las notas al margen: lo que aprendimos a cuestionar del artículo (no presenta pruebas estadísticas, no explica bien el grupo control y el efecto del blog es una interpretación).</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     21 · EXPLICAR · APRENDIZAJES
+     ===================================================================== -->
+<section class="slide" data-station="7" data-q="8">
+    <div class="head">
+        <h2 class="h2 rv">¿Qué aprendimos sobre <em>leer ciencia</em>?</h2>
+    </div>
+    <div class="lessons">
+        <div class="lesson frag"><div class="k">1</div><div><h3>Un artículo se construye como un tren</h3><p>Problema → teoría → método → resultados → discusión → limitaciones, todo enganchado.</p></div></div>
+        <div class="lesson frag"><div class="k">2</div><div><h3>Un número sin su "cómo" es solo un número</h3><p>Todo porcentaje debe explicar cómo se obtuvo.</p></div></div>
+        <div class="lesson frag"><div class="k">3</div><div><h3>Combinar datos da más fuerza</h3><p>Cifras + reflexiones de los estudiantes = triangulación.</p></div></div>
+        <div class="lesson frag"><div class="k">4</div><div><h3>Admitir limitaciones es honestidad</h3><p>Y contrastar con otros estudios le da credibilidad.</p></div></div>
+        <div class="lesson frag"><div class="k">5</div><div><h3>Leer es dialogar con el texto</h3><p>Anticipar, comprobar y corregir nuestras propias ideas, como hicimos con la hipótesis.</p></div></div>
+    </div>
+    <aside class="notes">
+        <p>Respuesta a "¿qué aprendieron sobre la lectura de artículos científicos?". Un clic por aprendizaje y una frase por cada uno.</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     22 · EXPLICAR · RETO: ¿Y SI LOS RIELES FALLARAN?
+     ===================================================================== -->
+<section class="slide s-reto" data-station="7" data-q="8">
+    <div class="head">
+        <h2 class="h2 rv">¿Y si los <em>rieles</em> fallaran?</h2>
+    </div>
+    <div class="scene rv" style="--d: .2s">
+        <div class="anno">sin rieles, no hay viaje</div>
+        <div class="rtrain"><div class="train-ph" data-reto="1"></div></div>
+        <div class="rseg a"></div>
+        <div class="rseg b frag keep tap" data-ping data-sfx="crash"><span class="rl">METODOLOGÍA</span></div>
+        <div class="rseg c"></div>
+    </div>
+    <div class="left">
+        <p class="rv" style="--d: .2s">La metodología son <b>los rieles</b> del artículo: dicen qué se midió, cómo y en qué orden.</p>
+        <p class="frag">Sin ella, el <b>−30 %</b> y el <b>+25 %</b> no se podrían verificar ni repetir… y las conclusiones serían <b>opiniones</b>, no hallazgos.</p>
+        <div class="warn frag">Por eso leímos sus cifras con cautela: el artículo no detalla cómo se formó el grupo control.</div>
+    </div>
+    <aside class="notes">
+        <p>Nuestro reto final: imaginar el artículo con una metodología mal hecha.</p>
+        <p>Toquen el riel "METODOLOGÍA": se rompe y el tren se descarrila. Dejen que el público lo vea y luego expliquen con los siguientes clics.</p>
+    </aside>
+</section>
+
+<!-- =====================================================================
+     23 · CIERRE
+     ===================================================================== -->
+<section class="slide s-end" data-station="0" data-cine="final" data-hook="end">
+    <div class="blob" style="--bc: var(--yellow); width: 520px; height: 520px; left: -200px; top: -180px;"></div>
+    <div class="blob" style="--bc: var(--pink); width: 460px; height: 460px; right: -160px; top: 520px; animation-delay: -6s;"></div>
+    <div class="wrap">
+        <p class="back rv">Volvamos a la pregunta del inicio…</p>
+        <p class="oldq rv" style="--d: .15s">¿Puede ChatGPT enseñarte sin pensar por ti?</p>
+        <p class="ans frag">No. Pero puede enseñarte <em>muchísimo</em>…<br>si tú sigues pensando.</p>
+        <div class="thanks frag">¡Gracias! <em>¿Preguntas?</em></div>
+    </div>
+    <p class="ref rv" style="--d: .4s">Zúñiga Zárate, A. G. (2025). Análisis de la integración de ChatGPT en el aprendizaje universitario con apoyo de blogs. <i>Comunicar, 33</i>(80), 60–74. https://doi.org/10.58262/C80-2025-06</p>
+    <div class="parade"><div class="trk"></div><div class="mover"><div class="train-ph" data-wagons="blue,pink,yellow,green,orange,cyan,violet" data-passengers="1"></div></div></div>
+    <aside class="notes">
+        <p>El tren llega al destino final. Repitan la pregunta del inicio y esperen un segundo antes del clic.</p>
+        <p>Clic → la respuesta (la idea con la que el público debe salir). Clic → gracias y preguntas.</p>
+    </aside>
+</section>
+
+<!-- ===== Elementos globales del escenario ===== -->
+<div class="fx" id="fx"></div>
+<div class="rail" id="rail"><div class="trk"></div><div id="railStations"></div><div class="mini" id="miniTrain"><div class="train-ph" data-wagons="pink,yellow"></div></div></div>
+
+<div class="cine" id="cine">
+    <div class="sun"></div><div class="sun2"></div>
+    <div class="cloud" id="cloud1"></div><div class="cloud" id="cloud2"></div>
+    <div class="ly far" id="lyFar"></div>
+    <div class="ly mid" id="lyMid"></div>
+    <div class="cst" id="cStation">
+        <div class="platform"></div><div class="post"></div>
+        <div class="board" id="cBoard"><small id="cNum">ESTACIÓN 01 / 07</small><b id="cName">Explorar</b></div>
+    </div>
+    <div class="ly near" id="lyNear"></div>
+    <div class="ctrain" id="cTrain"><div class="train-ph" data-wagons="pink,yellow,green" data-passengers="1"></div></div>
+    <div class="cfx" id="cfx"></div>
+    <div class="cq" id="cQ"></div>
+    <div class="skip">CLIC PARA SALTAR</div>
+</div>
+
+</main>
+</div>
+
+<!-- Controles fuera del escenario -->
+<div class="progress" id="progress"></div>
+<button class="mute" id="muteBtn" title="Sonido (M)">♪</button>
+<div class="deck-controls" id="controls">
+    <button id="btnPrev" aria-label="Anterior">‹</button>
+    <span id="counter">1 / 23</span>
+    <button id="btnNext" aria-label="Siguiente">›</button>
+</div>
+<div class="notes-panel" id="notesPanel" aria-live="polite"></div>
+<div class="edit-hotzone" id="editHotzone"></div>
+<button class="edit-toggle" id="editToggle" title="Modo edición (E)">✎</button>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===========================================
+   DATOS: estaciones de la ruta
+   =========================================== */
+const STATIONS = [
+    null,
+    { name: 'Explorar',    color: '#2B5BFF', text: '#FFFDF8', q: '¿Qué artículo elegimos y de qué trata?' },
+    { name: 'Anticipar',   color: '#FF3D8B', text: '#17153B', q: '¿Qué esperábamos encontrar?' },
+    { name: 'Localizar',   color: '#FFC72C', text: '#17153B', q: '¿Cómo está organizado el artículo?' },
+    { name: 'Interpretar', color: '#00A77F', text: '#FFFDF8', q: '¿Qué función cumple cada parte?' },
+    { name: 'Relacionar',  color: '#FF6A2B', text: '#17153B', q: '¿Qué tiene que ver con nuestra carrera?' },
+    { name: 'Comprobar',   color: '#19B3E6', text: '#17153B', q: '¿Acertamos con la hipótesis?' },
+    { name: 'Explicar',    color: '#7A4DFF', text: '#FFFDF8', q: '¿Qué aprendimos de leer ciencia?' }
+];
+const FINAL_STOP = { name: 'Comprensión', color: '#17153B', text: '#F4EEE3', label: 'DESTINO FINAL', q: 'Fin del viaje… ¿o el comienzo?' };
+const COLORS = { blue: '#2B5BFF', pink: '#FF3D8B', yellow: '#FFC72C', green: '#00A77F', orange: '#FF6A2B', cyan: '#19B3E6', violet: '#7A4DFF' };
+
+/* Vagones del artículo (lámina 10) */
+const ORG = [
+    { tag: 'PORTADA', big: 'T', name: 'Título, resumen y palabras clave', q: '¿De qué trata?', fn: 'Anticipan el tema y el contenido de toda la investigación: es lo primero que se lee.', loc: 'Portada', c: '#DCE5FF' },
+    { tag: '§ 1', big: '1', name: 'Introducción y marco teórico', q: '¿Por qué importa?', fn: 'Pone en contexto el uso de ChatGPT y define los conceptos: IA generativa, prompts y blogs.', loc: 'Secciones 1 a 1.4', c: '#FFD9E8' },
+    { tag: '§ 2', big: '2', name: 'Metodología', q: '¿Cómo se hizo?', fn: 'Explica qué se midió, las tres fases (Tabla 1) y cómo se usaron los blogs.', loc: 'Secciones 2.1 y 2.2', c: '#FFEFB8' },
+    { tag: '§ 3', big: '3', name: 'Resultados', q: '¿Qué pasó?', fn: 'Presenta los números y las reflexiones que escribieron los estudiantes.', loc: 'Sección 3 · Tabla 2', c: '#CDEFE3' },
+    { tag: '§ 4', big: '4', name: 'Discusión', q: '¿Qué significa?', fn: 'Compara con otros estudios, reconoce limitaciones y propone estrategias.', loc: 'Sección 4 (4.2 y 4.3)', c: '#FFDCCB' },
+    { tag: '§ 5', big: '5', name: 'Conclusión', q: '¿Y ahora qué?', fn: 'Resume los aportes del estudio y propone futuras investigaciones.', loc: 'Sección 5', c: '#CDEFFA' },
+    { tag: 'FINAL', big: 'R', name: 'Referencias', q: '¿En quién se apoya?', fn: 'Reúne las fuentes que respaldan cada afirmación del texto.', loc: 'Final del artículo', c: '#E4DAFF' }
+];
+
+const STORAGE_KEY = 'expo-tren-lectura-v3';
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ===========================================
+   SONIDO SINTETIZADO (Web Audio, sin archivos)
+   =========================================== */
+const Sound = {
+    ctx: null, master: null, buf: null, muted: false,
+    ensure() {
+        if (!this.ctx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (!AC) return false;
+            this.ctx = new AC();
+            this.master = this.ctx.createGain();
+            this.master.gain.value = this.muted ? 0 : .6;
+            this.master.connect(this.ctx.destination);
+            const len = this.ctx.sampleRate * 2;
+            this.buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+            const d = this.buf.getChannelData(0);
+            for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        return true;
+    },
+    env(g, t, a, peak, d) {
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(Math.max(peak, 0.0002), t + a);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + a + d);
+    },
+    noise({ dur = .2, type = 'bandpass', f = 1000, q = 1, peak = .3, a = .005, delay = 0, f2 = null } = {}) {
+        if (!this.ensure()) return;
+        const c = this.ctx, t = c.currentTime + delay;
+        const s = c.createBufferSource(); s.buffer = this.buf;
+        const fl = c.createBiquadFilter(); fl.type = type; fl.frequency.setValueAtTime(f, t); fl.Q.value = q;
+        if (f2) fl.frequency.exponentialRampToValueAtTime(f2, t + a + dur);
+        const g = c.createGain(); this.env(g, t, a, peak, dur);
+        s.connect(fl).connect(g).connect(this.master);
+        s.start(t, Math.random()); s.stop(t + a + dur + .05);
+    },
+    tone({ f = 440, f2 = null, dur = .2, type = 'sine', peak = .2, a = .01, delay = 0, vib = 0 } = {}) {
+        if (!this.ensure()) return;
+        const c = this.ctx, t = c.currentTime + delay;
+        const o = c.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, t);
+        if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+        if (vib) { const l = c.createOscillator(), lg = c.createGain(); l.frequency.value = 6; lg.gain.value = vib; l.connect(lg).connect(o.frequency); l.start(t); l.stop(t + a + dur + .05); }
+        const g = c.createGain(); this.env(g, t, a, peak, dur);
+        o.connect(g).connect(this.master); o.start(t); o.stop(t + a + dur + .05);
+    },
+    chug(l = 1) { this.noise({ dur: .07, f: 650 + 350 * l, q: .9, peak: .05 + .2 * l }); this.noise({ dur: .06, type: 'lowpass', f: 180, peak: .12 * l }); },
+    whistle(delay = 0, len = .9) {
+        if (!this.ensure()) return;
+        const c = this.ctx;
+        [[0, .32], [.42, len]].forEach(([st, d]) => {
+            const t = c.currentTime + delay + st;
+            const fl = c.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = 2300;
+            const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(.09, t + .06); g.gain.setValueAtTime(.09, t + d - .12); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+            fl.connect(g).connect(this.master);
+            [587, 740, 880].forEach(fr => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(fr * .96, t); o.frequency.exponentialRampToValueAtTime(fr, t + .1); o.connect(fl); o.start(t); o.stop(t + d + .05); });
+        });
+        this.noise({ dur: len + .4, type: 'highpass', f: 3000, peak: .03, a: .05, delay });
+    },
+    brake() { this.tone({ f: 2500, f2: 2150, dur: .9, peak: .03, a: .1, vib: 25 }); this.noise({ dur: .9, type: 'highpass', f: 4200, peak: .04, a: .1 }); },
+    hiss() { this.noise({ dur: 1.2, type: 'highpass', f: 2200, peak: .12, a: .02 }); },
+    pop() { this.tone({ f: 520, f2: 900, dur: .1, type: 'triangle', peak: .12 }); },
+    flip() { this.noise({ dur: .14, f: 1600, f2: 3200, q: 1.5, peak: .14 }); this.tone({ f: 330, f2: 520, dur: .12, type: 'triangle', peak: .06 }); },
+    clack() { this.noise({ dur: .05, f: 1200, q: 3, peak: .25 }); this.tone({ f: 180, f2: 90, dur: .1, type: 'square', peak: .05, delay: .02 }); },
+    punch() { this.noise({ dur: .05, f: 3200, q: 2, peak: .45 }); this.tone({ f: 160, f2: 60, dur: .14, type: 'square', peak: .08 }); },
+    ding() { this.tone({ f: 1320, dur: .9, peak: .1 }); this.tone({ f: 1980, dur: .6, peak: .04 }); },
+    thud() { this.tone({ f: 140, f2: 42, dur: .4, peak: .5 }); this.noise({ dur: .2, type: 'lowpass', f: 500, peak: .25 }); },
+    stamp() { this.tone({ f: 110, f2: 50, dur: .25, peak: .35 }); this.noise({ dur: .08, f: 900, peak: .25 }); },
+    bigstamp() { this.tone({ f: 90, f2: 35, dur: .5, peak: .6, delay: .42 }); this.noise({ dur: .3, type: 'lowpass', f: 700, peak: .35, delay: .42 }); },
+    tear() { this.noise({ dur: .35, f: 2500, f2: 900, q: 1, peak: .25 }); this.ding(); },
+    scribble() { for (let i = 0; i < 6; i++) this.noise({ dur: .07, f: 2400 + Math.random() * 1500, q: 4, peak: .08, delay: i * .09 }); },
+    crash() { this.noise({ dur: .3, f: 1800, q: 1, peak: .3 }); this.tone({ f: 120, f2: 40, dur: .6, peak: .5, delay: .7 }); this.noise({ dur: 1, type: 'lowpass', f: 600, peak: .35, delay: .75 }); this.tone({ f: 70, f2: 30, dur: .5, peak: .4, delay: 1.1 }); },
+    whoosh() { this.noise({ dur: .3, f: 500, f2: 1800, q: .7, peak: .04, a: .08 }); },
+    toggle() { this.muted = !this.muted; if (this.master) this.master.gain.value = this.muted ? 0 : .6; return this.muted; }
+};
+
+/* ===========================================
+   CONSTRUCTOR DE TRENES
+   =========================================== */
+function wagonHTML(w, passengers) {
+    const inner = w.label
+        ? `<div class="lab">${w.label}</div>`
+        : `<div class="wins"><i>${passengers ? '<b></b>' : ''}</i><i>${passengers ? '<b></b>' : ''}</i><i>${passengers ? '<b></b>' : ''}</i></div>`;
+    return `<div class="car wagon ${w.cls || ''}" style="--wc:${w.c}" ${w.attrs || ''}><div class="roof"></div><div class="body">${inner}</div><div class="under"></div><i class="wheel w1"></i><i class="wheel w2"></i></div>`;
+}
+function locoHTML(l = {}) {
+    return `<div class="car loco ${l.cls || ''}" ${l.attrs || ''}><div class="loco-art"><div class="cab"><i></i></div><div class="cabroof"></div><div class="boiler"></div><div class="lband"></div><div class="dome"></div><div class="chimney"><b class="stack"></b></div><div class="lamp"></div><div class="cow"></div><div class="chassis"></div><i class="wheel big"></i><i class="wheel m1"></i><i class="wheel m2"></i></div>${l.label ? `<div class="loco-lab">${l.label}</div>` : ''}</div>`;
+}
+function buildTrain({ wagons = [], dir = 'right', passengers = false, loco = {} }) {
+    const cp = '<div class="coupler"></div>';
+    const ws = wagons.map(w => wagonHTML(w, passengers));
+    const html = dir === 'left' ? [locoHTML(loco), ...ws].join(cp) : [...ws, locoHTML(loco)].join(cp);
+    return `<div class="train ${dir === 'left' ? 'to-left' : ''}">${html}</div>`;
+}
+function buildAllTrains() {
+    document.querySelectorAll('.train-ph').forEach(ph => {
+        let html;
+        if (ph.dataset.org) {
+            const cls = 'frag keep tap';
+            const loco = { cls, attrs: 'data-act="wagon" data-i="0" data-ping', label: 'PORTADA' };
+            const wagons = ORG.slice(1).map((o, i) => ({ c: o.c, cls, attrs: `data-act="wagon" data-i="${i + 1}"`, label: `<small>${o.tag}</small><span>${o.name.split(' ')[0]}</span>` }));
+            html = buildTrain({ wagons, dir: 'left', loco });
+        } else if (ph.dataset.reto) {
+            html = buildTrain({ wagons: [
+                { c: '#CDEFE3', label: '<span>Resultados</span>' },
+                { c: '#FFDCCB', label: '<span>Discusión</span>' },
+                { c: '#E4DAFF', label: '<span>Conclusiones</span>' }
+            ] });
+        } else {
+            const ws = (ph.dataset.wagons || '').split(',').filter(Boolean).map(k => ({ c: COLORS[k] || k }));
+            html = buildTrain({ wagons: ws, dir: ph.dataset.dir || 'right', passengers: !!ph.dataset.passengers });
+        }
+        ph.outerHTML = html;
+    });
+}
+
+/* ===========================================
+   HUMO
+   =========================================== */
+function puff(layer, x, y, { dx = -60, dy = 160, size = 2.4, dur = 1600 } = {}) {
+    if (reduceMotion) return;
+    const p = document.createElement('div');
+    p.className = 'puff';
+    p.style.left = (x - 30) + 'px'; p.style.top = (y - 30) + 'px';
+    layer.appendChild(p);
+    const anim = p.animate([
+        { transform: 'translate(0,0) scale(.35)', opacity: .95 },
+        { transform: `translate(${dx * .5}px, ${-dy * .55}px) scale(${size * .7})`, opacity: .8, offset: .45 },
+        { transform: `translate(${dx}px, ${-dy}px) scale(${size})`, opacity: 0 }
+    ], { duration: dur, easing: 'cubic-bezier(.2,.6,.3,1)' });
+    anim.onfinish = () => p.remove();
+}
+
+/* ===========================================
+   CINEMÁTICA DEL VIAJE
+   =========================================== */
+const svgURI = s => `url("data:image/svg+xml;utf8,${encodeURIComponent(s)}")`;
+const Cine = {
+    init() {
+        this.el = document.getElementById('cine');
+        this.far = document.getElementById('lyFar');
+        this.mid = document.getElementById('lyMid');
+        this.near = document.getElementById('lyNear');
+        this.st = document.getElementById('cStation');
+        this.board = document.getElementById('cBoard');
+        this.trainBox = document.getElementById('cTrain');
+        this.fx = document.getElementById('cfx');
+        this.q = document.getElementById('cQ');
+        this.clouds = [document.getElementById('cloud1'), document.getElementById('cloud2')];
+
+        const ink = '#17153B';
+        const far = `<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='420'>
+            <path d='M0 420 L0 250 L170 130 L330 240 L520 80 L700 220 L880 140 L1080 260 L1260 100 L1450 230 L1640 150 L1800 240 L1920 250 L1920 420 Z' fill='#B9CBFF'/>
+            <path d='M0 420 L0 300 L120 230 L300 320 L460 200 L640 310 L820 230 L1000 330 L1180 210 L1380 320 L1560 240 L1760 330 L1920 300 L1920 420 Z' fill='#FFB8D3' fill-opacity='.75'/></svg>`;
+        const trees = [[140, '#FF3D8B', 52], [420, '#FFC72C', 64], [640, '#00A77F', 48], [1010, '#FF6A2B', 58], [1260, '#FF3D8B', 46], [1540, '#00A77F', 62], [1780, '#FFC72C', 50]]
+            .map(([x, c, r]) => `<rect x='${x - 5}' y='${150}' width='10' height='160' fill='${ink}'/><circle cx='${x}' cy='${150}' r='${r}' fill='${c}' stroke='${ink}' stroke-width='5'/>`).join('');
+        const houses = [[820, '#FFC72C'], [1380, '#19B3E6']]
+            .map(([x, c]) => `<rect x='${x}' y='190' width='96' height='90' fill='${c}' stroke='${ink}' stroke-width='5'/><path d='M${x - 12} 194 L${x + 48} 140 L${x + 108} 194 Z' fill='${ink}'/><rect x='${x + 34}' y='224' width='26' height='56' fill='#F4EEE3' stroke='${ink}' stroke-width='4'/>`).join('');
+        const mid = `<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='340'>${trees}${houses}
+            <path d='M0 280 C 240 200, 480 200, 720 250 S 1200 320, 1440 240 S 1800 220, 1920 280 L1920 340 L0 340 Z' fill='#A7E0C8' stroke='${ink}' stroke-width='5'/></svg>`;
+        const poles = [300, 940, 1580].map(x => `<rect x='${x}' y='20' width='14' height='240' fill='${ink}'/><rect x='${x - 30}' y='40' width='74' height='12' fill='${ink}'/>`).join('');
+        const wires = [[-334, 306], [306, 946], [946, 1586], [1586, 2226]].map(([a, b]) => `<path d='M${a} 46 Q ${(a + b) / 2} 100 ${b} 46' fill='none' stroke='${ink}' stroke-width='3'/>`).join('');
+        let sleepers = '';
+        for (let x = 0; x < 1920; x += 48) sleepers += `<rect x='${x}' y='258' width='26' height='14' fill='${ink}' fill-opacity='.55'/>`;
+        let tufts = '';
+        [[120, '#00A77F'], [520, '#FFC72C'], [860, '#00A77F'], [1300, '#FF3D8B'], [1700, '#00A77F']].forEach(([x, c]) => { tufts += `<ellipse cx='${x}' cy='330' rx='60' ry='18' fill='${c}' fill-opacity='.35'/>`; });
+        const near = `<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='510'>${wires}${poles}
+            <rect x='0' y='272' width='1920' height='238' fill='#E6D8BC'/>${tufts}
+            <rect x='0' y='248' width='1920' height='10' fill='${ink}'/>${sleepers}
+            <rect x='0' y='272' width='1920' height='4' fill='${ink}'/></svg>`;
+        this.far.style.backgroundImage = svgURI(far);
+        this.mid.style.backgroundImage = svgURI(mid);
+        this.near.style.backgroundImage = svgURI(near);
+        const cloud = (w) => `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${w * .42}' viewBox='0 0 300 126'><path d='M40 110 Q8 110 18 82 Q20 50 60 54 Q76 16 122 26 Q152 0 192 26 Q244 14 252 58 Q294 64 282 96 Q276 112 250 110 Z' fill='#FFFDF8' stroke='#17153B' stroke-width='6'/></svg>`;
+        this.clouds[0].innerHTML = cloud(300); this.clouds[1].innerHTML = cloud(210);
+    },
+
+    /* info = { num, name, q, color, text } */
+    play(info) {
+        return new Promise(resolve => {
+            this.resolve = resolve;
+            this.skipReq = false;
+            const el = this.el;
+            this.board.style.setProperty('--bc', info.color);
+            this.board.style.setProperty('--bt', info.text);
+            document.getElementById('cNum').textContent = info.num;
+            document.getElementById('cName').textContent = info.name;
+            this.q.textContent = info.q;
+            this.q.style.opacity = 0;
+            this.fx.innerHTML = '';
+            el.classList.add('show');
+
+            this.train = this.trainBox.querySelector('.train');
+            this.wheels = Array.from(this.trainBox.querySelectorAll('.wheel')).map(w => ({ el: w, r: (w.offsetWidth / 2) * 1.25 }));
+            const stack = this.trainBox.querySelector('.stack');
+            const loco = this.trainBox.querySelector('.loco');
+            this.stackX = (loco.offsetLeft + 231) * 1.25;
+            this.stackY = 818 - (190 - 12) * 1.25;
+
+            el.animate([{ clipPath: 'circle(0% at 50% 55%)' }, { clipPath: 'circle(80% at 50% 55%)' }], { duration: 700, easing: 'cubic-bezier(.7,0,.3,1)', fill: 'forwards' });
+            Sound.whoosh();
+
+            const V0 = 1500, T1 = 1.7, T2 = 3.6, HOLD = 1.5, D = T2 - T1;
+            const remaining = t => t < T1 ? V0 * (T1 - t) + V0 * D / 2 : (t < T2 ? V0 * D * Math.pow(1 - (t - T1) / D, 2) / 2 : 0);
+            const total = remaining(0);
+            const speed = t => t < T1 ? V0 : (t < T2 ? V0 * (1 - (t - T1) / D) : 0);
+            const trainX = 40, stopX = 1120;
+            let t0 = performance.now(), lastChug = 0, lastPuff = 0, braked = false, stopped = false, ending = false;
+
+            const frame = now => {
+                let t = (now - t0) / 1000;
+                if (this.skipReq && !ending) { ending = true; this.finish(260); return; }
+                const v = speed(t), s = total - remaining(t);
+                this.far.style.backgroundPositionX = (-s * .1) + 'px';
+                this.mid.style.backgroundPositionX = (-s * .35) + 'px';
+                this.near.style.backgroundPositionX = (-s) + 'px';
+                this.clouds[0].style.transform = `translate(${1500 - ((s * .04 + t * 30) % 2300)}px, 110px)`;
+                this.clouds[1].style.transform = `translate(${2000 - ((s * .03 + t * 22 + 900) % 2300)}px, 210px)`;
+                this.st.style.transform = `translateX(${stopX + remaining(t)}px)`;
+                const enter = Math.min(1, t / 1.1), ease = 1 - Math.pow(1 - enter, 3);
+                const x = -1400 + (trainX + 1400) * ease;
+                const bob = v > 0 ? Math.sin(t * 30) * 2.2 * (v / V0) : 0;
+                this.trainBox.style.transform = `translate(${x}px, ${bob}px)`;
+                this.wheels.forEach(w => { w.el.style.transform = `rotate(${(s / w.r) * 57.3}deg)`; });
+                if (s - lastChug > 175 && v > 40) { Sound.chug(Math.min(1, v / V0)); lastChug = s; }
+                if (v > 0 && t - lastPuff > .1) { puff(this.fx, x + this.stackX, this.stackY, { dx: -260 * (v / V0) - 40, dy: 170, size: 2.2 }); lastPuff = t; }
+                if (!braked && t > T2 - .9) { braked = true; Sound.brake(); }
+                if (!stopped && t >= T2) {
+                    stopped = true;
+                    Sound.whistle(.05); Sound.hiss();
+                    for (let i = 0; i < 6; i++) setTimeout(() => puff(this.fx, x + this.stackX, this.stackY, { dx: -120 - Math.random() * 220, dy: 160 + Math.random() * 80, size: 2.8, dur: 1900 }), i * 90);
+                    for (let i = 0; i < 4; i++) setTimeout(() => puff(this.fx, x + 300 + i * 220, 800, { dx: (Math.random() - .5) * 120, dy: 60, size: 2, dur: 1400 }), i * 60);
+                    this.board.animate([{ transform: 'rotate(-4deg) scale(1.06)' }, { transform: 'rotate(2deg)' }, { transform: 'none' }], { duration: 700, easing: 'cubic-bezier(.34,1.56,.64,1)' });
+                    this.q.animate([{ opacity: 0, transform: 'translateX(-50%) translateY(30px)' }, { opacity: 1, transform: 'translateX(-50%)' }], { duration: 600, easing: 'cubic-bezier(.34,1.56,.64,1)', fill: 'forwards' });
+                }
+                if (t >= T2 + HOLD && !ending) { ending = true; this.finish(650); return; }
+                this.raf = requestAnimationFrame(frame);
+            };
+            this.raf = requestAnimationFrame(frame);
+        });
+    },
+    finish(dur) {
+        cancelAnimationFrame(this.raf);
+        const a = this.el.animate([{ clipPath: 'circle(80% at 50% 55%)' }, { clipPath: 'circle(0% at 50% 55%)' }], { duration: dur, easing: 'cubic-bezier(.7,0,.3,1)', fill: 'forwards' });
+        a.onfinish = () => {
+            this.el.classList.remove('show');
+            this.el.getAnimations({ subtree: true }).forEach(x => x.cancel());
+            this.fx.innerHTML = '';
+            const r = this.resolve; this.resolve = null; r && r();
+        };
+    },
+    skip() { this.skipReq = true; }
+};
+
+/* ===========================================
+   RESTAURAR EDICIONES GUARDADAS
+   =========================================== */
+try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+    if (saved && Array.isArray(saved)) document.querySelectorAll('.slide').forEach((s, i) => { if (saved[i]) s.innerHTML = saved[i]; });
+} catch (e) { /* sin almacenamiento */ }
+
+/* ===========================================
+   CONTROLADOR DE LA PRESENTACIÓN
+   =========================================== */
+class SlidePresentation {
+    constructor() {
+        this.stage = document.getElementById('deckStage');
+        this.slides = Array.from(this.stage.querySelectorAll('.slide'));
+        this.current = 0;
+        this.station = 0;
+        this.busy = false;
+        this.editing = false;
+        this.startTime = Date.now();
+
+        buildAllTrains();
+        Cine.init();
+        this.buildChrome();
+        this.buildRail();
+        this.buildPings();
+        this.buildLupa();
+        this.setupStageScale();
+        this.setupKeyboard();
+        this.setupPointer();
+        this.setupControls();
+
+        const h = parseInt(location.hash.replace('#', ''), 10);
+        this.go(Number.isFinite(h) ? h - 1 : 0, { instant: true, revealAll: location.hash.includes('!') });
+        setInterval(() => this.renderNotes(), 1000);
+    }
+
+    buildChrome() {
+        this.slides.forEach(s => {
+            const st = parseInt(s.dataset.station || '0', 10);
+            if (!st || s.querySelector('.chrome')) return;
+            const h = document.createElement('header');
+            h.className = 'chrome';
+            h.innerHTML = `<span class="kicker"><i></i>Estación 0${st} · ${STATIONS[st].name}</span>` + (s.dataset.q ? `<span class="qchip">Pregunta <b>${s.dataset.q}</b> / 8</span>` : '<span></span>');
+            s.prepend(h);
+        });
+    }
+
+    buildRail() {
+        const box = document.getElementById('railStations');
+        box.innerHTML = STATIONS.slice(1).map((s, i) => `<div class="stn" data-i="${i + 1}" style="left:${i / 6 * 100}%; --sc:${s.color}"><i></i><span>${s.name}</span></div>`).join('');
+        this.stns = Array.from(box.children);
+        this.mini = document.getElementById('miniTrain');
+    }
+
+    updateRail(st) {
+        this.stage.classList.toggle('no-rail', st === 0);
+        this.stns.forEach(n => { const i = +n.dataset.i; n.classList.toggle('past', i < st); n.classList.toggle('cur', i === st); });
+        if (!st) return;
+        const w = 1580, trainW = 718 * .3;
+        const target = ((st - 1) / 6) * w - trainW / 2;
+        if (this.mini.style.left !== target + 'px') {
+            this.mini.querySelector('.train').classList.add('spin');
+            clearTimeout(this.miniT);
+            this.miniT = setTimeout(() => this.mini.querySelector('.train').classList.remove('spin'), 1600);
+            this.mini.style.left = target + 'px';
+        }
+    }
+
+    buildPings() {
+        this.stage.querySelectorAll('[data-ping]').forEach(el => {
+            if (!el.querySelector(':scope > .ping')) el.insertAdjacentHTML('beforeend', '<span class="ping"></span>');
+        });
+    }
+
+    /* Lupa: copia el contenido nítido en la capa borrosa y sigue al mouse */
+    buildLupa() {
+        const page = document.getElementById('lupaPage');
+        if (!page) return;
+        page.querySelector('.pg-blur').innerHTML = page.querySelector('.pg-sharp').innerHTML;
+        page.addEventListener('mousemove', e => {
+            const r = page.getBoundingClientRect();
+            page.classList.add('hover');
+            page.style.setProperty('--mx', ((e.clientX - r.left) / this.scale) + 'px');
+            page.style.setProperty('--my', ((e.clientY - r.top) / this.scale) + 'px');
+        });
+        page.addEventListener('mouseleave', () => { page.classList.remove('hover'); page.style.removeProperty('--mx'); page.style.removeProperty('--my'); });
+    }
+
+    setupStageScale() {
+        const scale = () => {
+            const f = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            this.scale = f;
+            const x = (window.innerWidth - 1920 * f) / 2, y = (window.innerHeight - 1080 * f) / 2;
+            this.stage.style.transform = `translate(${x}px, ${y}px) scale(${f})`;
+        };
+        scale();
+        window.addEventListener('resize', scale);
+    }
+
+    pendingFrags() { return Array.from(this.slides[this.current].querySelectorAll('.frag:not(.on)')); }
+    shownFrags() { return Array.from(this.slides[this.current].querySelectorAll('.frag.on')); }
+
+    showFrag(f) {
+        f.classList.add('on');
+        f.classList.add('touched');
+        this.runCounts(f);
+        const sfx = f.dataset.sfx || (f.classList.contains('flip') ? 'flip' : (f.dataset.act === 'wagon' ? null : 'pop'));
+        if (sfx && Sound[sfx]) Sound[sfx]();
+        if (f.dataset.act === 'wagon') this.selectWagon(f);
+        this.renderNotes();
+    }
+
+    next() {
+        if (this.busy) { Cine.skip(); return; }
+        const p = this.pendingFrags();
+        if (p.length) { this.showFrag(p[0]); return; }
+        this.go(this.current + 1);
+    }
+
+    prev() {
+        if (this.busy) { Cine.skip(); return; }
+        const s = this.shownFrags();
+        if (s.length) {
+            const f = s[s.length - 1];
+            f.classList.remove('on');
+            if (f.dataset.act === 'wagon') { const on = this.shownFrags().filter(x => x.dataset.act === 'wagon'); on.length ? this.selectWagon(on[on.length - 1], true) : this.resetWagons(); }
+            return;
+        }
+        this.go(this.current - 1, { revealAll: true });
+    }
+
+    /* Toques directos con el mouse */
+    tap(el) {
+        Sound.ensure();
+        const act = el.dataset.act;
+        el.classList.add('touched');
+        if (act === 'punch') {
+            if (!el.classList.contains('on')) { el.classList.add('on'); Sound.punch(); Sound.ding(); Sound.whistle(.35, .6); }
+            return;
+        }
+        if (act === 'toggle') { el.classList.toggle('on'); Sound.pop(); return; }
+        if (act === 'recount') { this.runCounts(el, false, true); Sound.pop(); return; }
+        if (el.classList.contains('frag')) {
+            if (!el.classList.contains('on')) this.showFrag(el);
+            else if (act === 'wagon') this.selectWagon(el);
+            else if (el.classList.contains('flip')) { el.classList.remove('on'); Sound.flip(); }
+        }
+    }
+
+    selectWagon(w, silent) {
+        const slide = w.closest('.slide');
+        slide.querySelectorAll('.car.sel').forEach(c => c.classList.remove('sel'));
+        w.classList.add('sel');
+        const d = ORG[+w.dataset.i];
+        const tag = document.getElementById('wpTag');
+        tag.style.setProperty('--wc', d.c);
+        tag.innerHTML = `<small>${d.tag}</small><b>${d.big}</b><small>VAGÓN ${+w.dataset.i + 1} DE 7</small>`;
+        document.getElementById('wpBody').outerHTML = `<div class="content" id="wpBody"><h3>${d.name}</h3><div class="q">${d.q}</div><p>${d.fn}</p><div class="loc">UBICACIÓN · ${d.loc.toUpperCase()}</div></div>`;
+        if (!silent) Sound.clack();
+    }
+
+    resetWagons() {
+        document.querySelectorAll('.car.sel').forEach(c => c.classList.remove('sel'));
+        const tag = document.getElementById('wpTag');
+        tag.style.removeProperty('--wc');
+        tag.innerHTML = '<small>ARTÍCULO</small><b>7</b><small>PARTES</small>';
+        document.getElementById('wpBody').outerHTML = '<div class="content" id="wpBody"><h3>Cada vagón es una sección</h3><p>Van en orden y enganchados entre sí. Toquen un vagón para ver qué lleva dentro.</p></div>';
+    }
+
+    async go(index, opts = {}) {
+        index = Math.max(0, Math.min(index, this.slides.length - 1));
+        if (index === this.current && !opts.instant) return;
+        const forward = index > this.current;
+        const old = this.slides[this.current];
+        const slide = this.slides[index];
+        const st = parseInt(slide.dataset.station || '0', 10);
+        const isFinal = slide.dataset.cine === 'final';
+        const cine = !opts.instant && forward && !reduceMotion && ((st && st !== this.station) || (isFinal && !old.dataset.cine));
+
+        clearTimeout(this.visTimer);
+        this.current = index;
+        this.updateUI();
+        try { history.replaceState(null, '', '#' + (index + 1)); } catch (e) {}
+
+        if (cine) {
+            this.busy = true;
+            const info = isFinal
+                ? { num: FINAL_STOP.label, name: FINAL_STOP.name, q: FINAL_STOP.q, color: FINAL_STOP.color, text: FINAL_STOP.text }
+                : { num: `ESTACIÓN 0${st} / 07`, name: STATIONS[st].name, q: STATIONS[st].q, color: STATIONS[st].color, text: STATIONS[st].text };
+            const p = Cine.play(info);
+            setTimeout(() => { old.classList.remove('active', 'visible'); this.prepare(slide, opts); }, 700);
+            await p;
+            this.busy = false;
+        } else {
+            old.classList.remove('active', 'visible');
+            this.prepare(slide, opts);
+            if (!opts.instant) Sound.whoosh();
+        }
+        this.station = st;
+        this.updateRail(st);
+        this.visTimer = setTimeout(() => this.reveal(slide, opts), 40);
+    }
+
+    prepare(slide, opts) {
+        slide.querySelectorAll('.frag').forEach(f => f.classList.toggle('on', !!opts.revealAll));
+        if (!opts.revealAll) slide.querySelectorAll('.tap.on:not(.frag)').forEach(t => t.classList.remove('on'));
+        if (slide.querySelector('#wpBody')) { if (opts.revealAll) { const w = slide.querySelectorAll('.car.frag'); this.selectWagon(w[w.length - 1], true); } else this.resetWagons(); }
+        slide.classList.add('active');
+        slide.classList.remove('visible');
+    }
+
+    reveal(slide, opts) {
+        slide.classList.add('visible');
+        this.runCounts(slide, !!opts.revealAll);
+        const hook = slide.dataset.hook;
+        if (hook === 'org' && !opts.revealAll) this.arriveOrg(slide);
+        if (hook === 'end') Sound.whistle(.3, 1.1);
+    }
+
+    /* El tren de la lámina 10 llega a la estación */
+    arriveOrg(slide) {
+        [0, .2, .4, .62, .86, 1.12, 1.42, 1.76].forEach((t, i, a) => setTimeout(() => { if (slide.classList.contains('visible')) Sound.chug(1 - i / a.length); }, t * 1000));
+        setTimeout(() => {
+            if (!slide.classList.contains('visible')) return;
+            Sound.hiss();
+            const stack = slide.querySelector('.stack');
+            const fx = document.getElementById('fx');
+            const sr = this.stage.getBoundingClientRect(), r = stack.getBoundingClientRect();
+            const x = (r.left - sr.left) / this.scale, y = (r.top - sr.top) / this.scale;
+            for (let i = 0; i < 6; i++) setTimeout(() => puff(fx, x, y, { dx: (Math.random() - .5) * 140, dy: 170, size: 2.4, dur: 1700 }), i * 110);
+        }, 2100);
+    }
+
+    /* Contadores animados */
+    runCounts(scope, instant = false, force = false) {
+        scope.querySelectorAll('.count').forEach(el => {
+            const frag = el.closest('.frag');
+            const pre = el.dataset.prefix || '', suf = el.dataset.suffix || '', to = +el.dataset.to;
+            if (!force && frag && !frag.classList.contains('on')) { el.textContent = pre + '0' + suf; return; }
+            if (instant || reduceMotion) { el.textContent = pre + to + suf; return; }
+            const t0 = performance.now(), dur = 1500;
+            const tick = now => {
+                const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 4);
+                el.textContent = pre + Math.round(to * e) + suf;
+                if (p < 1) requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+        });
+    }
+
+    updateUI() {
+        document.getElementById('counter').textContent = `${this.current + 1} / ${this.slides.length}`;
+        document.getElementById('progress').style.width = ((this.current + 1) / this.slides.length * 100) + '%';
+        this.renderNotes();
+    }
+
+    renderNotes() {
+        const panel = document.getElementById('notesPanel');
+        if (!panel.classList.contains('open')) return;
+        const notes = this.slides[this.current].querySelector('.notes');
+        const secs = Math.floor((Date.now() - this.startTime) / 1000);
+        const time = `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
+        const left = this.pendingFrags().length;
+        panel.innerHTML = `<h5><span>LÁMINA ${this.current + 1}/${this.slides.length}${left ? ' · faltan ' + left + ' clic(s)' : ''}</span><span>⏱ ${time}</span></h5>${notes ? notes.innerHTML : '<p>Sin notas.</p>'}`;
+    }
+
+    setupKeyboard() {
+        document.addEventListener('keydown', e => {
+            Sound.ensure();
+            const save = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's';
+            if (this.editing) {
+                if (e.key === 'Escape') editor.toggle();
+                if (save) { e.preventDefault(); editor.download(); }
+                return;
+            }
+            if (save) { e.preventDefault(); editor.download(); return; }
+            switch (e.key) {
+                case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown': case 'Enter': e.preventDefault(); this.next(); break;
+                case 'ArrowLeft': case 'ArrowUp': case 'PageUp': case 'Backspace': e.preventDefault(); this.prev(); break;
+                case 'Home': this.go(0, { instant: true }); break;
+                case 'End': this.go(this.slides.length - 1, { revealAll: true, instant: true }); break;
+                case 'f': case 'F': if (!document.fullscreenElement) document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.(); break;
+                case 'n': case 'N': document.getElementById('notesPanel').classList.toggle('open'); this.renderNotes(); break;
+                case 'm': case 'M': toggleMute(); break;
+                case 'e': case 'E': editor.toggle(); break;
+            }
+        });
+    }
+
+    setupPointer() {
+        document.querySelector('.deck-viewport').addEventListener('click', e => {
+            Sound.ensure();
+            if (this.editing) return;
+            if (this.busy) { Cine.skip(); return; }
+            const t = e.target.closest('.tap');
+            if (t && t.closest('.slide') === this.slides[this.current]) { this.tap(t); return; }
+            if (e.target.closest('#lupaPage')) return;
+            this.next();
+        });
+        let x0 = null;
+        document.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+        document.addEventListener('touchend', e => {
+            if (x0 === null || this.editing) return;
+            const dx = e.changedTouches[0].clientX - x0;
+            if (Math.abs(dx) > 60) { dx < 0 ? this.next() : this.prev(); }
+            x0 = null;
+        });
+    }
+
+    setupControls() {
+        const c = document.getElementById('controls');
+        let t;
+        document.addEventListener('mousemove', () => { c.classList.add('show'); clearTimeout(t); t = setTimeout(() => c.classList.remove('show'), 2200); });
+        document.getElementById('btnPrev').addEventListener('click', e => { e.stopPropagation(); this.prev(); });
+        document.getElementById('btnNext').addEventListener('click', e => { e.stopPropagation(); this.next(); });
+        document.getElementById('muteBtn').addEventListener('click', e => { e.stopPropagation(); toggleMute(); });
+    }
+}
+
+function toggleMute() {
+    const m = Sound.toggle();
+    const b = document.getElementById('muteBtn');
+    b.textContent = m ? '✕' : '♪';
+    b.classList.toggle('off', m);
+    toast(m ? 'Sonido apagado (M)' : 'Sonido encendido (M)');
+}
+
+/* ===========================================
+   EDICIÓN EN LÍNEA (E para activar, Ctrl+S para descargar)
+   =========================================== */
+const editor = {
+    toggle() {
+        deck.editing = !deck.editing;
+        document.getElementById('editToggle').classList.toggle('active', deck.editing);
+        deck.stage.classList.toggle('editing', deck.editing);
+        deck.slides.forEach(s => s.querySelectorAll('h1,h2,h3,h4,p,li,dd,.chip,.pred,.mnote,.fix,.tren div').forEach(el => {
+            if (deck.editing) el.setAttribute('contenteditable', 'true'); else el.removeAttribute('contenteditable');
+        }));
+        if (deck.editing) {
+            deck.slides[deck.current].querySelectorAll('.frag').forEach(f => f.classList.add('on'));
+            toast('Modo edición: clic en un texto · Esc para salir · Ctrl+S para descargar');
+        } else { this.save(); toast('Cambios guardados en este navegador'); }
+    },
+    save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(deck.slides.map(s => s.innerHTML))); } catch (e) {} },
+    download() {
+        if (deck.editing) this.toggle();
+        const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+        a.download = 'Exposicion-ChatGPT-Blogs.html';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+};
+
+function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+const deck = new SlidePresentation();
+
+(() => {
+    const hot = document.getElementById('editHotzone'), btn = document.getElementById('editToggle');
+    let hide = null;
+    const show = () => { clearTimeout(hide); btn.classList.add('show'); };
+    const later = () => { hide = setTimeout(() => { if (!deck.editing) btn.classList.remove('show'); }, 400); };
+    hot.addEventListener('mouseenter', show); hot.addEventListener('mouseleave', later);
+    btn.addEventListener('mouseenter', show); btn.addEventListener('mouseleave', later);
+    hot.addEventListener('click', e => { e.stopPropagation(); editor.toggle(); });
+    btn.addEventListener('click', e => { e.stopPropagation(); editor.toggle(); });
+})();
+</script>
+</body>
+</html>
