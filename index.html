@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>El tren de la lectura</title>
+<title>El tren de la lectura · Resumen</title>
 
 <!-- Fuentes incrustadas (funciona sin internet): Instrument Serif · Archivo · JetBrains Mono · Caveat — licencia SIL OFL -->
 <style id="fonts">
@@ -638,6 +638,57 @@ img, video, canvas, svg { max-width: 100%; max-height: 100%; }
 .thanks em { font: italic 400 50px/1 var(--serif); }
 .ref { position: absolute; left: 120px; right: 120px; bottom: 70px; text-align: center; font: 400 15px/1.5 var(--mono); color: var(--mute); }
 
+/* =====================================================================
+   VERSIÓN RESUMIDA · componentes extra
+   ===================================================================== */
+.sum-left { position: absolute; left: 120px; top: 190px; width: 620px; }
+.sum-left .lead { font-size: 27px; }
+.mstats { display: flex; margin-top: 54px; }
+.mstats .stat { padding: 0 34px; }
+.mstats .stat:first-child { padding-left: 0; }
+.mstats .stat .val { font-size: 116px; }
+.mstats .stat .unit { margin-top: 16px; font-size: 13px; }
+.why-list { list-style: none; display: grid; gap: 46px; margin-top: 18px; }
+.why-list li { display: grid; grid-template-columns: 70px 1fr; gap: 20px; font-size: 33px; line-height: 1.38; color: var(--ink-2); }
+.why-list li b { font: italic 400 72px/.8 var(--serif); color: var(--amber); }
+.why-list li strong { color: var(--ink); font-weight: 600; }
+.clues { position: absolute; left: 120px; right: 120px; top: 896px; display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.clues .mono-s { margin-right: 8px; }
+.tri { position: absolute; left: 120px; right: 120px; top: 300px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; }
+.tri .card { padding: 36px 38px; }
+.tri .tk { font: 500 14px/1 var(--mono); letter-spacing: .26em; color: var(--amber); }
+.tri h3 { font: 400 56px/1 var(--serif); margin-top: 18px; }
+.tri .an { font: italic 400 28px/1.2 var(--serif); color: var(--ink-2); margin-top: 10px; }
+.tri ul { list-style: none; margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); display: grid; gap: 20px; }
+.tri li { font-size: 23px; line-height: 1.4; color: var(--ink-2); }
+.tri li b { display: block; color: var(--ink); font-weight: 600; font-size: 26px; margin-bottom: 2px; }
+.h2 .neq-s { font-family: var(--sans); font-weight: 200; color: var(--amber); font-style: normal; }
+.links.rel3 { top: 470px; }
+.links.rel3 .card { height: 330px; padding: 40px 40px; }
+.links.rel3 h3 { font-size: 40px; margin-top: 22px; }
+.links.rel3 p { font-size: 27px; margin-top: 18px; }
+.nums.cmp { right: auto; width: 900px; top: 300px; grid-template-columns: repeat(2, 1fr); gap: 28px 30px; }
+.nums.cmp .flip { height: 270px; }
+.nums.cmp .back .v { font-size: 112px; }
+.verd { position: absolute; left: 1080px; right: 120px; top: 300px; padding: 34px 40px 30px; }
+.verd h4 { font: 500 14px/1 var(--mono); letter-spacing: .3em; color: var(--amber); margin-bottom: 6px; }
+.verd .vr { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; padding: 22px 0; border-bottom: 1px solid var(--line); }
+.verd .vr span { font-size: 28px; font-weight: 500; }
+.verd .vr small { display: block; font: 500 12px/1 var(--mono); letter-spacing: .26em; color: var(--amber); margin-bottom: 8px; }
+.verd .stamp { font-size: 16px; padding: 12px 16px; }
+.verd .vr.frag .stamp { transform: rotate(-5deg) scale(1.8); opacity: 0; transition: transform .35s cubic-bezier(.5, 0, .75, 0) .25s, opacity .2s .25s; }
+.verd .vr.frag.on .stamp { transform: rotate(-5deg); opacity: 1; }
+.verd .vnote { font-size: 21px; line-height: 1.45; color: var(--ink-2); margin-top: 22px; }
+.verd .vnote b { color: var(--ink); font-weight: 600; }
+.bigstamp.cmpst { left: 460px; top: 500px; width: 1000px; }
+.bigstamp.cmpst b { font-size: 96px; }
+.bigstamp.cmpst span { font-size: 60px; }
+.lessons.sum { top: 350px; }
+.lessons.sum .lesson { padding: 30px 0; }
+.lessons.sum h3 { font-size: 44px; }
+.lessons.sum p { font-size: 27px; margin-top: 10px; }
+.lessons.sum .k { font-size: 110px; }
+
 /* ===========================================
    CONTROLES FUERA DEL ESCENARIO
    =========================================== */
@@ -714,258 +765,83 @@ img, video, canvas, svg { max-width: 100%; max-height: 100%; }
     </div>
     <div class="cue rv" style="--d: 1.4s"><i></i>CLIC PARA COMENZAR EL VIAJE</div>
     <aside class="notes">
-        <p>Abran con la pregunta del título en voz alta. Presenten a los integrantes.</p>
-        <p>Toquen el pase de abordar: se perfora, aparece "A BORDO" y el tren enciende sus luces y suena la bocina. Frase: "Hoy los invitamos a un viaje: vamos a recorrer juntos un artículo científico".</p>
+        <p><b>Expone: Camilo.</b> Lee la pregunta del título en voz alta y presenta al grupo.</p>
+        <p>Toca el pase de abordar (se perfora y suena la bocina). Di: «Hoy vamos a recorrer un artículo científico como si fuera un viaje en tren, en 7 estaciones».</p>
     </aside>
 </section>
 
 <!-- =====================================================================
-     2 · GANCHO
+     2 · EXPLORAR · EL ARTÍCULO (preguntas 1 y 2)
      ===================================================================== -->
-<section class="slide s-hook" data-station="0" data-shot="hook" data-dim=".55,.9" data-enter="drift">
-    <div class="hook-text">
-        <p class="big split">Levanta la mano si esta semana le pediste algo a <em>ChatGPT</em> para una tarea.</p>
-        <p class="hook-q frag">Ahora, sé honesto: ¿lo habrías hecho sin él?</p>
-        <div class="hook-go frag"><i></i>De eso trata este artículo</div>
-    </div>
-    <div class="chat card rv" style="--d: .4s">
-        <div class="chat-top"><i></i><i></i><i></i><span>asistente_virtual</span></div>
-        <div class="chat-body">
-            <div class="bub me" style="--d: 1.2s">Hazme el resumen del libro para mañana, porfa</div>
-            <div class="bub ai" style="--d: 2.1s">¡Claro! Aquí tienes tu resumen de 300 palabras, listo para entregar ✓</div>
-            <div class="bub me" style="--d: 3.2s">Perfecto… ¿y de qué trataba el libro?</div>
-            <div class="bub ai" style="--d: 4.1s"><span class="typing"><span></span><span></span><span></span></span></div>
+<section class="slide s-ficha" data-station="1" data-q="1 y 2" data-shot="ficha" data-dim=".5,.9" data-enter="rise">
+    <div class="sum-left">
+        <h2 class="h2 split" style="font-size: 80px;">ChatGPT en clase…<br><em>y un blog al lado</em></h2>
+        <p class="lead rv" style="--d: .35s">Una profesora usó ChatGPT como <b>asistente</b> en una materia técnica y pidió a sus estudiantes <b>escribir en un blog</b> cómo lo usaban. Quería saber si la IA ayuda a aprender sin volverlos dependientes.</p>
+        <div class="mstats rv" style="--d: .55s">
+            <div class="stat tap" data-act="recount"><div class="val"><span class="count" data-to="120">0</span></div><span class="unit">Estudiantes</span></div>
+            <div class="stat tap" data-act="recount"><div class="val"><span class="count" data-to="12">0</span></div><span class="unit">Semanas</span></div>
+            <div class="stat tap" data-act="recount"><div class="val"><span class="count" data-to="3">0</span></div><span class="unit">Fases</span></div>
         </div>
-    </div>
-    <aside class="notes">
-        <p>Haz la pregunta y levanta tú también la mano. Espera 2 o 3 segundos mirando al público. Deja que lean el chat (provoca risa).</p>
-        <p>Clic → la segunda pregunta, en tono más bajo. Clic → "De eso trata este artículo".</p>
-    </aside>
-</section>
-
-<!-- =====================================================================
-     3 · MAPA DE LA RUTA
-     ===================================================================== -->
-<section class="slide" data-station="0" data-shot="map" data-dim=".7,.4" data-enter="zoom">
-    <div class="head">
-        <h2 class="h2 split">Leer no es copiar.<br><em>Es un viaje con 7 estaciones.</em></h2>
-    </div>
-    <div class="map">
-        <svg viewBox="0 0 1680 420" aria-hidden="true">
-            <path d="M90 200 C 210 200, 220 110, 340 110 S 470 240, 590 240 S 720 100, 840 100 S 970 250, 1090 250 S 1220 110, 1340 110 S 1470 200, 1590 200" fill="none" stroke="rgba(236,230,218,.16)" stroke-width="2"/>
-            <path id="routePath" class="draw" pathLength="1" style="--d: .4s" d="M90 200 C 210 200, 220 110, 340 110 S 470 240, 590 240 S 720 100, 840 100 S 970 250, 1090 250 S 1220 110, 1340 110 S 1470 200, 1590 200" fill="none" stroke="#F2A93B" stroke-width="2"/>
-            <g>
-                <circle r="16" fill="url(#gLamp)"/><circle r="4" fill="#FFF6E6"/>
-                <animateMotion dur="9s" repeatCount="indefinite" rotate="auto"><mpath href="#routePath"/></animateMotion>
-            </g>
-        </svg>
-        <div class="mst tap" data-act="toggle" data-ping style="left: 90px; top: 200px"><div class="dot"></div><div class="no">01</div><div class="nm">Explorar</div><div class="tip card">¿Qué artículo elegimos y por qué? ¿De qué trata?</div></div>
-        <div class="mst tap up" data-act="toggle" style="left: 340px; top: 110px"><div class="dot"></div><div class="no">02</div><div class="nm">Anticipar</div><div class="tip card">¿Qué esperábamos antes de leer?</div></div>
-        <div class="mst tap" data-act="toggle" style="left: 590px; top: 240px"><div class="dot"></div><div class="no">03</div><div class="nm">Localizar</div><div class="tip card">¿Cómo está organizado? ¿Cómo hallamos sus partes?</div></div>
-        <div class="mst tap up" data-act="toggle" style="left: 840px; top: 100px"><div class="dot"></div><div class="no">04</div><div class="nm">Interpretar</div><div class="tip card">¿Qué función cumple cada parte?</div></div>
-        <div class="mst tap" data-act="toggle" style="left: 1090px; top: 250px"><div class="dot"></div><div class="no">05</div><div class="nm">Relacionar</div><div class="tip card">¿Y la Ingeniería de Sistemas?</div></div>
-        <div class="mst tap up" data-act="toggle" style="left: 1340px; top: 110px"><div class="dot"></div><div class="no">06</div><div class="nm">Comprobar</div><div class="tip card">¿Acertamos con la hipótesis?</div></div>
-        <div class="mst tap" data-act="toggle" style="left: 1590px; top: 200px"><div class="dot"></div><div class="no">07</div><div class="nm">Explicar</div><div class="tip card">¿Qué aprendimos de leer ciencia?</div></div>
-    </div>
-    <aside class="notes">
-        <p>La secuencia que pidió la profesora convertida en ruta: explorar, anticipar, localizar, interpretar, relacionar, comprobar y explicar.</p>
-        <p>Toquen algunas estaciones para mostrar su pregunta. Frase: "No vinimos a copiar el artículo: vinimos a recorrerlo". El siguiente clic arranca el viaje.</p>
-    </aside>
-</section>
-
-<!-- =====================================================================
-     4 · EXPLORAR · FICHA DEL ARTÍCULO
-     ===================================================================== -->
-<section class="slide s-ficha" data-station="1" data-q="1" data-shot="ficha" data-dim=".5,.9" data-enter="rise">
-    <div class="left">
-        <h2 class="h2 split">El artículo que <em>elegimos</em></h2>
-        <p class="lead rv" style="--d: .35s">Una investigación aplicada, publicada en <b>2025</b> en una revista científica internacional.</p>
-        <p class="lead rv" style="--d: .5s; font-size: 26px;">Primer paso: <b>explorar</b>. Antes de leer a fondo, miramos título, autora, revista y palabras clave.</p>
     </div>
     <div class="idflip flip frag keep tap" data-ping style="--d: .3s">
         <div class="in">
             <div class="face front">
-                <div class="band"><span><b>COMUNICAR</b> · N.º 80 · VOL. XXXIII</span><span>2025 · PP. 60–74</span></div>
+                <div class="band"><span><b>COMUNICAR</b> · N.º 80 · 2025</span><span>PP. 60–74</span></div>
                 <div class="inner">
                     <h3>Análisis de la integración de ChatGPT en el aprendizaje universitario con apoyo de blogs</h3>
                     <div class="au">Dra. Ana Gabriela Zúñiga Zárate<span>Euncet Business School, España</span></div>
-                    <div class="kw"><span class="chip">Inteligencia artificial</span><span class="chip">Educación universitaria</span><span class="chip">ChatGPT</span><span class="chip">Prompt</span><span class="chip">Blogs</span><span class="chip">Asistente virtual</span></div>
+                    <div class="kw"><span class="chip">Inteligencia artificial</span><span class="chip">ChatGPT</span><span class="chip">Prompt</span><span class="chip">Blogs</span><span class="chip">Educación universitaria</span></div>
                 </div>
-                <div class="turn">↻ FICHA TÉCNICA</div>
+                <div class="turn">↻ ¿POR QUÉ LO ELEGIMOS?</div>
             </div>
             <div class="face back">
-                <div class="band"><span><b>FICHA TÉCNICA</b></span><span>DOI 10.58262/C80-2025-06</span></div>
+                <div class="band"><span><b>¿POR QUÉ LO ELEGIMOS?</b></span><span>3 RAZONES</span></div>
                 <div class="inner">
-                    <dl class="fields">
-                        <div><dt>Tipo de estudio</dt><dd>Investigación aplicada · enfoque mixto (cuantitativo + cualitativo)</dd></div>
-                        <div><dt>Muestra</dt><dd>120 estudiantes de 2.º año de Marketing Digital</dd></div>
-                        <div><dt>Duración</dt><dd>12 semanas</dd></div>
-                        <div><dt>Asignatura</dt><dd>Tecnología Web y Bases de Datos</dd></div>
-                    </dl>
-                    <div class="idfoot"><span>RECIBIDO 28-12-2024</span><span>PUBLICADO 20-04-2025</span></div>
+                    <ul class="why-list">
+                        <li><b>1</b><span><strong>Nos toca de cerca:</strong> usamos ChatGPT casi a diario para estudiar.</span></li>
+                        <li><b>2</b><span><strong>Es actual y confiable:</strong> salió en 2025 en una revista científica con DOI.</span></li>
+                        <li><b>3</b><span><strong>Habla de nuestra carrera:</strong> se hizo en una materia de tecnología web y bases de datos.</span></li>
+                    </ul>
                 </div>
-                <div class="turn">↻ PORTADA</div>
+                <div class="turn">↻ EL ARTÍCULO</div>
             </div>
         </div>
     </div>
     <aside class="notes">
-        <p>Toquen la ficha para voltearla. Por delante: título, autora y palabras clave. Por detrás: los datos técnicos.</p>
-        <p>Destaquen 3 datos: es de 2025, de la revista Comunicar, y estudia a 120 estudiantes durante 12 semanas.</p>
+        <p><b>Expone: Camilo.</b> Di: «El artículo trata de una profesora que usó ChatGPT como asistente en una materia y pidió a sus estudiantes escribir en un blog cómo lo usaban».</p>
+        <p>Señala los números: 120 estudiantes, 12 semanas, 3 fases (aprender a pedirle cosas a la IA, usarla y reflexionar en el blog). Luego toca la tarjeta: por detrás están las 3 razones por las que lo elegimos.</p>
     </aside>
 </section>
 
 <!-- =====================================================================
-     5 · EXPLORAR · ¿POR QUÉ ESTE ARTÍCULO?
-     ===================================================================== -->
-<section class="slide" data-station="1" data-q="1" data-shot="why" data-dim=".6,.4" data-enter="fall">
-    <div class="head">
-        <h2 class="h2 split">¿Por qué <em>este</em> artículo?</h2>
-        <p class="lead rv" style="--d: .3s">Tres razones nos subieron a este tren:</p>
-    </div>
-    <div class="why">
-        <div class="flip frag keep tap" data-ping style="--d: .35s">
-            <div class="in">
-                <div class="face front"><div class="n">01</div><h3>Nos toca de cerca</h3><div class="turn">↻ VER</div></div>
-                <div class="face back"><div class="n">01</div><p>Usamos ChatGPT casi todos los días para estudiar. Queríamos saber si nos ayuda a aprender… o nos vuelve dependientes.</p></div>
-            </div>
-        </div>
-        <div class="flip frag keep tap" style="--d: .5s">
-            <div class="in">
-                <div class="face front"><div class="n">02</div><h3>Es actual y confiable</h3><div class="turn">↻ VER</div></div>
-                <div class="face back"><div class="n">02</div><p>Salió en 2025 en <i>Comunicar</i>, una revista científica con ISSN y DOI, especializada en educación y medios.</p></div>
-            </div>
-        </div>
-        <div class="flip frag keep tap" style="--d: .65s">
-            <div class="in">
-                <div class="face front"><div class="n">03</div><h3>Habla de nuestra carrera</h3><div class="turn">↻ VER</div></div>
-                <div class="face back"><div class="n">03</div><p>Se hizo en una materia técnica (Tecnología Web y Bases de Datos), muy cercana a Ingeniería de Sistemas.</p></div>
-            </div>
-        </div>
-    </div>
-    <aside class="notes">
-        <p>Toquen cada tarjeta para voltearla (o usen la flecha). Cuenten la primera como experiencia propia: "¿Quién no le ha pedido ayuda a ChatGPT con una tarea?".</p>
-        <p>(Si sus razones reales fueron otras, edítenlas con la tecla E.)</p>
-    </aside>
-</section>
-
-<!-- =====================================================================
-     6 · EXPLORAR · ¿DE QUÉ TRATA?
-     ===================================================================== -->
-<section class="slide" data-station="1" data-q="2" data-shot="stats" data-dim=".52,.6" data-enter="rise">
-    <div class="head">
-        <h2 class="h2 split">Una investigadora llevó ChatGPT al aula…<br><em>y le sumó un blog.</em></h2>
-    </div>
-    <div class="stats3">
-        <div class="stat tap rv" data-act="recount" style="--d: .4s"><div class="val"><span class="count" data-to="120">0</span></div><span class="unit">Estudiantes</span><p>de segundo año de Marketing Digital</p></div>
-        <div class="stat tap rv" data-act="recount" style="--d: .55s"><div class="val"><span class="count" data-to="12">0</span></div><span class="unit">Semanas</span><p>usando ChatGPT como asistente virtual en clase</p></div>
-        <div class="stat tap rv" data-act="recount" style="--d: .7s"><div class="val"><span class="count" data-to="2">0</span></div><span class="unit">Miradas</span><p>números (tiempo, calidad) + lo que los estudiantes escribieron en sus blogs</p></div>
-    </div>
-    <div class="subj rv" style="--d: .9s"><span class="chip am">Asignatura</span> Tecnología Web y Bases de Datos <span class="chip am">Método</span> mixto: cuantitativo + cualitativo</div>
-    <aside class="notes">
-        <p>Resumen en una frase: "La autora usó ChatGPT como asistente en una materia y pidió a los estudiantes escribir en un blog cómo lo usaban".</p>
-        <p>Pueden tocar cualquier número para que vuelva a contar.</p>
-    </aside>
-</section>
-
-<!-- =====================================================================
-     7 · EXPLORAR · EL DILEMA
-     ===================================================================== -->
-<section class="slide" data-station="1" data-q="2" data-shot="dilema" data-dim=".7,.3" data-enter="zoom">
-    <div class="head">
-        <h2 class="h2 split" style="font-size: 88px;">El problema: <em>un arma de doble filo</em></h2>
-    </div>
-    <p class="dq rv" style="--d: .3s">¿Cómo aprovechar ChatGPT en clase sin crear dependencia?</p>
-    <div class="scale rv" style="--d: .45s">
-        <div class="pivot"><svg viewBox="0 0 50 76"><path d="M25 2 L48 74 L2 74 Z" fill="rgba(236,230,218,.06)" stroke="rgba(236,230,218,.45)" stroke-width="1.5"/><circle cx="25" cy="2" r="5" fill="#F2A93B"/></svg></div>
-        <div class="beam"><div class="weight">✎ BLOG</div></div>
-        <div class="pan l card">
-            <h4>LO QUE APORTA</h4>
-            <ul><li>Corrige errores rápido</li><li>Explica conceptos difíciles</li><li>Ahorra tiempo</li></ul>
-        </div>
-        <div class="pan r card">
-            <h4>EL RIESGO</h4>
-            <ul><li>Depender de la IA</li><li>Menos pensamiento crítico</li><li>Menos autonomía</li></ul>
-        </div>
-    </div>
-    <div class="addblog frag keep tap f-balance" data-ping data-sfx="thud"><span class="a">＋ Añadir el blog de reflexión</span><span class="b">La propuesta: <em>ChatGPT + blog de reflexión</em></span></div>
-    <aside class="notes">
-        <p>La balanza está inclinada hacia el riesgo. Expliquen los dos lados.</p>
-        <p>Toquen "Añadir el blog": cae el bloque y la balanza se equilibra. Esa es la propuesta de la autora: usar ChatGPT y, a la vez, escribir en un blog cómo se usa (reflexionar sobre el propio aprendizaje).</p>
-    </aside>
-</section>
-
-<!-- =====================================================================
-     8 · EXPLORAR · LAS 3 FASES (vagones)
-     ===================================================================== -->
-<section class="slide" data-station="1" data-q="2" data-shot="fases" data-dim=".55,.4" data-enter="drift">
-    <div class="head">
-        <h2 class="h2 split">Cómo lo hicieron: <em>3 vagones</em></h2>
-    </div>
-    <p class="note-small mono-s rv" style="--d: .3s">Resumido en la Tabla 1 del artículo</p>
-    <div class="ground rv" style="--d: .2s"></div>
-    <div class="phases">
-        <div class="ph frag roll">
-            <div class="box card">
-                <div class="top"><span>FASE 01</span><b>APRENDER</b></div>
-                <div class="bd"><h3>Capacitación</h3><p>Aprendieron a escribir buenos <b>prompts</b>: instrucciones claras para pedirle cosas a la IA.</p>
-                    <div class="ex"><span>&gt;</span> Explícame este tema paso a paso</div></div>
-            </div>
-            <div class="bog a"></div><div class="bog b"></div>
-        </div>
-        <div class="ph-cp frag"></div>
-        <div class="ph frag roll">
-            <div class="box card">
-                <div class="top"><span>FASE 02</span><b>USAR</b></div>
-                <div class="bd"><h3>Implementación</h3><p>Usaron ChatGPT como asistente en las tareas reales de la materia.</p>
-                    <div class="ex"><span>&gt;</span> ¿Por qué no funciona mi ejercicio?</div></div>
-            </div>
-            <div class="bog a"></div><div class="bog b"></div>
-        </div>
-        <div class="ph-cp frag"></div>
-        <div class="ph frag roll">
-            <div class="box card">
-                <div class="top"><span>FASE 03</span><b>PENSAR</b></div>
-                <div class="bd"><h3>Reflexión</h3><p>Escribieron en un <b>blog</b> (Blogger) cómo usaron la IA y qué aprendieron.</p>
-                    <div class="ex"><span>✎</span> Hoy entendí por qué me equivocaba…</div></div>
-            </div>
-            <div class="bog a"></div><div class="bog b"></div>
-        </div>
-    </div>
-    <aside class="notes">
-        <p>Cada clic engancha un vagón. Fórmula fácil: aprender a pedir, usar y pensar sobre lo que se hizo.</p>
-        <p>Los textos de ejemplo son ilustrativos, no citas del artículo.</p>
-    </aside>
-</section>
-
-<!-- =====================================================================
-     9 · ANTICIPAR · HIPÓTESIS SELLADA
+     3 · ANTICIPAR · HIPÓTESIS (pregunta 7, parte 1)
      ===================================================================== -->
 <section class="slide s-hyp" data-station="2" data-q="7" data-shot="hyp" data-dim=".62,.6" data-enter="right">
     <div class="doc card rv" style="--d: .3s">
-        <div class="lbl">HIPÓTESIS INICIAL</div>
-        <p class="htxt">Si se integra ChatGPT como asistente virtual en una asignatura técnica y se complementa con blogs de reflexión, los estudiantes trabajarán <b>más rápido</b> y con <b>mejor calidad técnica</b>, y el riesgo de dependencia de la IA <b>se reducirá gracias a la reflexión</b> metacognitiva.</p>
+        <div class="lbl">NUESTRA HIPÓTESIS</div>
+        <p class="htxt">Si se usa ChatGPT como asistente y se complementa con un blog de reflexión, los estudiantes trabajarán <b>más rápido</b>, con <b>mejor calidad</b> y el blog <b>reducirá la dependencia</b> de la IA.</p>
         <div class="seal frag keep tap" data-ping data-sfx="tear" style="--d: .9s"><div class="half l"><span>H</span></div><div class="half r"><span>H</span></div></div>
     </div>
     <div class="left">
         <h2 class="h2 split">Antes de leer todo, <em>apostamos.</em></h2>
-        <p class="lead rv" style="--d: .35s">Solo con el <b>título</b>, el <b>resumen</b> y las <b>palabras clave</b>, escribimos una hipótesis.</p>
+        <p class="lead rv" style="--d: .35s">Solo con el <b>título</b>, el <b>resumen</b> y las <b>palabras clave</b> escribimos una hipótesis.</p>
         <div class="preds">
-            <div class="pred frag"><span class="chip am">P1</span> Trabajarán más rápido</div>
-            <div class="pred frag"><span class="chip am">P2</span> Con mejor calidad técnica</div>
-            <div class="pred frag"><span class="chip am">P3</span> Y el blog reducirá la dependencia</div>
+            <div class="pred frag"><span class="chip am">P1</span> Más rápido</div>
+            <div class="pred frag"><span class="chip am">P2</span> Mejor calidad</div>
+            <div class="pred frag"><span class="chip am">P3</span> Menos dependencia</div>
         </div>
-        <p class="sealnote frag">La guardamos… y la revisamos en la estación 06.</p>
+        <p class="sealnote frag">¿Acertamos? Lo vemos en la estación 06.</p>
     </div>
     <aside class="notes">
-        <p>Anticipar = hacer una apuesta antes de leer. Toquen el sello de cera para romperlo y leer la hipótesis.</p>
-        <p>Luego, con clics, aparecen las tres predicciones. Díganlo con misterio: "¿Habremos acertado?".</p>
+        <p><b>Expone: Camilo.</b> Di: «Anticipar es hacer una apuesta antes de leer el artículo completo». Toca el sello de cera para abrir la hipótesis y léela.</p>
+        <p>Con clics salen las 3 predicciones. Termina con misterio: «¿Habremos acertado?».</p>
     </aside>
 </section>
 
 <!-- =====================================================================
-     10 · LOCALIZAR · EL ARTÍCULO ES UN TREN
+     4 · LOCALIZAR · ORGANIZACIÓN (preguntas 3 y 4)
      ===================================================================== -->
-<section class="slide" data-station="3" data-q="3" data-hook="org" data-shot="org" data-dim=".8,.3" data-enter="zoom">
+<section class="slide" data-station="3" data-q="3 y 4" data-hook="org" data-shot="org" data-dim=".8,.3" data-enter="zoom">
     <div class="head">
         <h2 class="h2 split" style="font-size: 86px;">¿Cómo está organizado? <em>Como un tren.</em></h2>
     </div>
@@ -983,338 +859,108 @@ img, video, canvas, svg { max-width: 100%; max-height: 100%; }
     <div class="orgtrain">
         <div class="train-ph" data-org="1"></div>
     </div>
+    <div class="clues rv" style="--d: 1.2s"><span class="mono-s">Las encontramos con</span><span class="chip am">Títulos numerados</span><span class="chip am">Tablas 1 y 2</span><span class="chip am">Resumen y palabras clave</span><span class="chip am">Lectura dividida entre los 3</span></div>
     <aside class="notes">
-        <p>El tren entra solo. Idea central: "Un artículo científico es como un tren: la locomotora (título y resumen) jala todo, y cada vagón es una sección que va en orden".</p>
-        <p>Toquen los vagones uno por uno (o usen la flecha): arriba aparece qué lleva cada uno y qué pregunta responde. Señalen la nota ámbar: los enganches son la cohesión; si una sección no conecta con la siguiente, el texto se desarma.</p>
+        <p><b>Expone: Linda.</b> Di: «Un artículo científico es como un tren: la portada jala todo y cada vagón es una sección que va en orden». Toca 2 o 3 vagones para mostrar qué lleva cada uno.</p>
+        <p>Abajo está cómo encontramos las partes: siguiendo los títulos numerados, las tablas, el resumen y las palabras clave, y dividiéndonos la lectura entre los tres.</p>
     </aside>
 </section>
 
 <!-- =====================================================================
-     11 · LOCALIZAR · LA LUPA (¿cómo identificamos los componentes?)
+     5 · INTERPRETAR · FUNCIÓN DE LAS PARTES (pregunta 5)
      ===================================================================== -->
-<section class="slide s-lupa" data-station="3" data-q="4" data-shot="lupa" data-dim=".7,.3" data-enter="drift">
-    <div class="pagewrap rv" style="--d: .15s"><div class="page" id="lupaPage">
-        <div class="pg pg-blur"></div>
-        <div class="pg pg-sharp">
-            <div class="pg-journal">COMUNICAR · N.º 80 · 2025 · PP. 60–74</div>
-            <div class="pg-title"><mark>Análisis de la integración de ChatGPT en el aprendizaje universitario con apoyo de blogs</mark></div>
-            <div class="pg-author">Ana Gabriela Zúñiga Zárate</div>
-            <div class="pg-h"><mark>Resumen</mark></div>
-            <div class="bars"><i></i><i></i><i style="width: 70%"></i></div>
-            <div class="pg-kw"><mark>Palabras clave:</mark> inteligencia artificial, ChatGPT, prompt, blogs</div>
-            <div class="pg-h"><mark>1. Introducción</mark></div>
-            <div class="bars"><i></i><i></i><i style="width: 80%"></i></div>
-            <div class="pg-h"><mark>2. Metodología</mark></div>
-            <div class="bars"><i></i><i style="width: 60%"></i></div>
-            <div class="pg-tab"><mark>Tabla 1.</mark> Fases del estudio<div class="tb"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
-            <div class="pg-h"><mark>3. Resultados</mark></div>
-            <div class="bars"><i></i><i style="width: 75%"></i></div>
-            <div class="pg-tab"><mark>Tabla 2.</mark> Con y sin ChatGPT</div>
-            <div class="pg-h"><mark>4. Discusión</mark> · <mark>5. Conclusión</mark></div>
-            <div class="bars"><i></i><i style="width: 50%"></i></div>
-        </div>
-        <div class="lens"></div>
-    </div></div>
-    <div class="right">
-        <h2 class="h2 split" style="font-size: 84px;">¿Cómo encontramos <em>las piezas</em>?</h2>
-        <div class="steps">
-            <div class="step card frag"><div class="nn">01</div><div><h3>Exploramos</h3><p>Título, resumen y palabras clave: la primera idea del texto.</p></div></div>
-            <div class="step card frag"><div class="nn">02</div><div><h3>Seguimos las pistas</h3><p>Títulos numerados, tablas y figuras: las señales del camino.</p></div></div>
-            <div class="step card frag"><div class="nn">03</div><div><h3>Nos dividimos</h3><p>Cada integrante leyó a fondo una parte e hizo una observación crítica.</p></div></div>
-            <div class="step card frag"><div class="nn">04</div><div><h3>Lo armamos juntos</h3><p>Una tabla colectiva: cada componente, dónde está y para qué sirve.</p></div></div>
-        </div>
-    </div>
-    <aside class="notes">
-        <p>Pasen el mouse por la hoja: la lupa revela, resaltadas, las pistas que usamos (títulos numerados, resumen, palabras clave, tablas). Si no la tocan, la lupa se mueve sola.</p>
-        <p>Con clics aparecen los 4 pasos. Mensaje: no buscamos "a ciegas"; el texto mismo deja señales.</p>
-    </aside>
-</section>
-
-<!-- =====================================================================
-     12 · LOCALIZAR · DIVIDE Y VENCERÁS
-     ===================================================================== -->
-<section class="slide" data-station="3" data-q="4" data-shot="equipo" data-dim=".62,.3" data-enter="fall">
+<section class="slide" data-station="4" data-q="5" data-shot="f1" data-dim=".66,.3" data-enter="rise">
     <div class="head">
-        <h2 class="h2 split">Divide y <em>vencerás</em></h2>
+        <h2 class="h2 split" style="font-size: 86px;">¿Para qué sirve <em>cada parte</em>?</h2>
     </div>
-    <div class="team3">
-        <div class="flip frag keep tap" data-ping style="--d: .35s">
-            <div class="in">
-                <div class="face front"><div class="av">L</div><h3>Linda</h3><div class="sec">Introducción y marco teórico<br>§ 1 a 1.4</div><div class="turn">↻ SU REVISIÓN</div></div>
-                <div class="face back"><h4>Linda opina…</h4><div class="pm">
-                    <div class="p"><i>+</i><span>La autora no solo elogia a ChatGPT: desde el inicio advierte sobre la dependencia y explica qué es un <b>prompt</b>.</span></div>
-                    <div class="m"><i>−</i><span>Cita muchísimos autores seguidos: a ratos no se sabe qué idea es de ella y cuál de otros.</span></div></div></div>
-            </div>
-        </div>
-        <div class="flip frag keep tap" style="--d: .5s">
-            <div class="in">
-                <div class="face front"><div class="av">C</div><h3>Camilo</h3><div class="sec">Metodología y resultados<br>§ 2 y 3</div><div class="turn">↻ SU REVISIÓN</div></div>
-                <div class="face back"><h4>Camilo opina…</h4><div class="pm">
-                    <div class="p"><i>+</i><span>Las tres fases están claras y resumidas en la Tabla 1. No se basó solo en números: también leyó los blogs.</span></div>
-                    <div class="m"><i>−</i><span>¿Cómo midieron el 30 % y el 25 %? ¿Quiénes eran el grupo de comparación? No queda claro.</span></div></div></div>
-            </div>
-        </div>
-        <div class="flip frag keep tap" style="--d: .65s">
-            <div class="in">
-                <div class="face front"><div class="av">V</div><h3>Vladimir</h3><div class="sec">Discusión, limitaciones y conclusión<br>§ 4 y 5</div><div class="turn">↻ SU REVISIÓN</div></div>
-                <div class="face back"><h4>Vladimir opina…</h4><div class="pm">
-                    <div class="p"><i>+</i><span>La autora es honesta con lo malo: sesgos de la IA y estudiantes que no podían resolver problemas sin ella.</span></div>
-                    <div class="m"><i>−</i><span>La conclusión repite varias veces la misma idea sobre futuros estudios.</span></div></div></div>
-            </div>
-        </div>
+    <div class="tri">
+        <div class="card frag"><div class="tk">01 · EL ARRANQUE</div><h3>Preparar el viaje</h3><div class="an">título, resumen, introducción</div>
+            <ul><li><b>Título y resumen</b>anticipan de qué trata todo.</li><li><b>Introducción y marco teórico</b>dan el contexto y explican los conceptos.</li><li><b>Problema y objetivo</b>dicen qué se quiere resolver.</li></ul></div>
+        <div class="card frag"><div class="tk">02 · EL RECORRIDO</div><h3>Hacer el viaje</h3><div class="an">metodología</div>
+            <ul><li><b>Metodología</b>son los rieles: qué se midió y cómo.</li><li><b>Tres fases</b>capacitación, uso de ChatGPT y reflexión en el blog.</li><li><b>Blogs</b>la bitácora donde los estudiantes escribieron.</li></ul></div>
+        <div class="card frag"><div class="tk">03 · LA LLEGADA</div><h3>Ver qué se encontró</h3><div class="an">resultados, discusión, conclusión</div>
+            <ul><li><b>Resultados</b>muestran los datos.</li><li><b>Discusión y limitaciones</b>explican qué significan y qué falló.</li><li><b>Conclusión</b>resume y propone nuevas rutas.</li></ul></div>
     </div>
     <aside class="notes">
-        <p>Cada integrante voltea su propia tarjeta y la cuenta en unos 20 segundos: lo que le gustó (+) y lo que criticó (−).</p>
-        <p>Mensaje: leer críticamente es ver lo bueno y lo flojo de un texto.</p>
+        <p><b>Expone: Linda.</b> Un clic por columna. Di: «El artículo tiene un arranque que prepara el viaje, un recorrido que es la metodología y una llegada con los resultados».</p>
+        <p>Frase clave: «La metodología son los rieles: sin ella, los resultados no se podrían creer».</p>
     </aside>
 </section>
 
 <!-- =====================================================================
-     13 · INTERPRETAR · EL ARRANQUE
+     6 · RELACIONAR · INGENIERÍA DE SISTEMAS (pregunta 6)
      ===================================================================== -->
-<section class="slide" data-station="4" data-q="5" data-shot="f1" data-dim=".6,.3" data-enter="rise">
+<section class="slide" data-station="5" data-q="6" data-shot="links" data-dim=".64,.4" data-enter="zoom">
     <div class="head">
-        <h2 class="h2 split" style="font-size: 86px;">El arranque: <em>lo que prepara el viaje</em></h2>
+        <h2 class="h2 split" style="font-size: 92px;">Llegar al destino <span class="neq-s">≠</span> <em>conocer el camino.</em></h2>
+        <p class="lead rv" style="--d: .4s">Con ChatGPT puedes tener el resultado sin entender cómo llegaste. Por eso el artículo le habla a <b>Ingeniería de Sistemas</b>:</p>
     </div>
-    <div class="fgrid" style="grid-template-columns: repeat(5, 1fr)">
-        <div class="flip frag keep tap" data-ping style="--d: .3s"><div class="in">
-            <div class="face front"><span class="loc">Portada</span><h3>Título y resumen</h3><div class="tren"><small>EN EL TREN</small><div>el letrero de destino</div></div></div>
-            <div class="face back"><small>FUNCIÓN</small><p>Anticipan el tema y el contenido de toda la investigación.</p><h4>Título y resumen</h4></div></div></div>
-        <div class="flip frag keep tap" style="--d: .4s"><div class="in">
-            <div class="face front"><span class="loc">Sección 1</span><h3>Intro&shy;ducción</h3><div class="tren"><small>EN EL TREN</small><div>el andén de salida</div></div></div>
-            <div class="face back"><small>FUNCIÓN</small><p>Pone en contexto el uso de ChatGPT en la asignatura.</p><h4>Introducción</h4></div></div></div>
-        <div class="flip frag keep tap" style="--d: .5s"><div class="in">
-            <div class="face front"><span class="loc">Secc. 1.1 a 1.4</span><h3>Marco teórico</h3><div class="tren"><small>EN EL TREN</small><div>el mapa de rutas</div></div></div>
-            <div class="face back"><small>FUNCIÓN</small><p>Define los conceptos clave: IA generativa, tendencias, prompts y blogs.</p><h4>Marco teórico</h4></div></div></div>
-        <div class="flip frag keep tap" style="--d: .6s"><div class="in">
-            <div class="face front"><span class="loc">Intro y resumen</span><h3>Problema</h3><div class="tren"><small>EN EL TREN</small><div>la vía bloqueada</div></div></div>
-            <div class="face back"><small>FUNCIÓN</small><p>Plantea qué hay que resolver: aprovechar ChatGPT sin crear dependencia.</p><h4>Problema</h4></div></div></div>
-        <div class="flip frag keep tap" style="--d: .7s"><div class="in">
-            <div class="face front"><span class="loc">Resumen e intro</span><h3>Objetivo</h3><div class="tren"><small>EN EL TREN</small><div>la estación de llegada</div></div></div>
-            <div class="face back"><small>FUNCIÓN</small><p>Dice a dónde quiere llegar: evaluar ChatGPT como asistente, combinado con blogs.</p><h4>Objetivo</h4></div></div></div>
-    </div>
-    <aside class="notes">
-        <p>Cada tarjeta muestra la parte del artículo y su equivalente en el tren (en ámbar). Al voltearla aparece su función real.</p>
-        <p>Ejemplo: "El marco teórico es el mapa de rutas: antes de viajar, explica los conceptos que vamos a usar".</p>
-    </aside>
-</section>
-
-<!-- =====================================================================
-     14 · INTERPRETAR · EL RECORRIDO
-     ===================================================================== -->
-<section class="slide" data-station="4" data-q="5" data-shot="f2" data-dim=".6,.3" data-enter="drift">
-    <div class="head">
-        <h2 class="h2 split" style="font-size: 86px;">El recorrido: <em>cómo se hizo el viaje</em></h2>
-    </div>
-    <div class="fgrid" style="grid-template-columns: repeat(3, 1fr)">
-        <div class="flip frag keep tap" data-ping style="--d: .3s"><div class="in">
-            <div class="face front"><span class="loc">Sección 2.1</span><h3>Variables</h3><div class="tren"><small>EN EL TREN</small><div>el tablero de mandos: lo que se mide en el viaje</div></div></div>
-            <div class="face back"><small>FUNCIÓN</small><p>Definen qué se mide: el tiempo, la calidad de los trabajos y otras variables del estudio.</p><h4>Variables</h4></div></div></div>
-        <div class="flip frag keep tap" style="--d: .45s"><div class="in">
-            <div class="face front"><span class="loc">Sección 2.1 · Tabla 1</span><h3>Metodología</h3><div class="tren"><small>EN EL TREN</small><div>los rieles: el camino, paso a paso</div></div></div>
-            <div class="face back"><small>FUNCIÓN</small><p>Describe las tres fases del estudio: capacitación, implementación y reflexión.</p><h4>Metodología</h4></div></div></div>
-        <div class="flip frag keep tap" style="--d: .6s"><div class="in">
-            <div class="face front"><span class="loc">Sección 2.2</span><h3>Herramientas de reflexión</h3><div class="tren"><small>EN EL TREN</small><div>la bitácora del viaje</div></div></div>
-            <div class="face back"><small>FUNCIÓN</small><p>Justifica el uso de Blogger y muestra ejemplos reales de prompts y de entradas de blog.</p><h4>Herramientas de reflexión</h4></div></div></div>
-    </div>
-    <aside class="notes">
-        <p>Es el corazón del artículo. Insistan en la metodología = los rieles: sin ella no sabríamos de dónde salen los resultados (lo retomamos en el reto final).</p>
-    </aside>
-</section>
-
-<!-- =====================================================================
-     15 · INTERPRETAR · LA LLEGADA
-     ===================================================================== -->
-<section class="slide" data-station="4" data-q="5" data-shot="f3" data-dim=".6,.3" data-enter="right">
-    <div class="head">
-        <h2 class="h2 split" style="font-size: 86px;">La llegada: <em>lo que se encontró</em></h2>
-    </div>
-    <div class="fgrid" style="grid-template-columns: repeat(4, 1fr)">
-        <div class="flip frag keep tap" data-ping style="--d: .3s"><div class="in">
-            <div class="face front"><span class="loc">Sección 3 · Tabla 2</span><h3>Resultados</h3><div class="tren"><small>EN EL TREN</small><div>la carga que llegó</div></div></div>
-            <div class="face back"><small>FUNCIÓN</small><p>Presentan los datos: números y lo que escribieron los estudiantes.</p><h4>Resultados</h4></div></div></div>
-        <div class="flip frag keep tap" style="--d: .4s"><div class="in">
-            <div class="face front"><span class="loc">Sección 4</span><h3>Discusión</h3><div class="tren"><small>EN EL TREN</small><div>comparar con otros viajes</div></div></div>
-            <div class="face back"><small>FUNCIÓN</small><p>Compara los hallazgos con otros estudios y explica qué significan.</p><h4>Discusión</h4></div></div></div>
-        <div class="flip frag keep tap" style="--d: .5s"><div class="in">
-            <div class="face front"><span class="loc">Secc. 4.2 y 4.3</span><h3>Limitaciones y propuestas</h3><div class="tren"><small>EN EL TREN</small><div>el reporte de averías… y cómo repararlas</div></div></div>
-            <div class="face back"><small>FUNCIÓN</small><p>Reconocen la dependencia y los sesgos de la IA, y proponen cómo reducirlos.</p><h4>Limitaciones</h4></div></div></div>
-        <div class="flip frag keep tap" style="--d: .6s"><div class="in">
-            <div class="face front"><span class="loc">Sección 5</span><h3>Conclusión</h3><div class="tren"><small>EN EL TREN</small><div>la llegada y las próximas rutas</div></div></div>
-            <div class="face back"><small>FUNCIÓN</small><p>Resume los aportes y propone futuras investigaciones.</p><h4>Conclusión</h4></div></div></div>
-    </div>
-    <aside class="notes">
-        <p>Destaquen las limitaciones: un buen texto científico admite sus fallas. Eso le da credibilidad.</p>
-    </aside>
-</section>
-
-<!-- =====================================================================
-     16 · RELACIONAR · FRASE CENTRAL
-     ===================================================================== -->
-<section class="slide s-quote" data-station="5" data-q="6" data-shot="quote" data-dim=".3,.75" data-enter="zoom">
-    <p class="qbig split">Llegar al destino <span class="neq">≠</span><br><em>conocer el camino.</em></p>
-    <p class="sub rv" style="--d: .9s">«Una cosa es que el código funcione y otra entender por qué funciona.»</p>
-    <p class="attr rv" style="--d: 1.1s">— Vladimir, sobre la discusión del artículo</p>
-    <aside class="notes">
-        <p>Lámina de impacto: díganla despacio, con el tren a toda velocidad detrás. "Con ChatGPT uno puede llegar al resultado… sin saber cómo llegó".</p>
-        <p>Puente: "Y eso es justo lo que conecta este artículo con nuestra carrera".</p>
-    </aside>
-</section>
-
-<!-- =====================================================================
-     17 · RELACIONAR · CON INGENIERÍA DE SISTEMAS
-     ===================================================================== -->
-<section class="slide" data-station="5" data-q="6" data-shot="links" data-dim=".6,.3" data-enter="rise">
-    <div class="head">
-        <h2 class="h2 split" style="font-size: 86px;">¿Y qué tiene que ver con <em>Ingeniería de Sistemas</em>? Mucho.</h2>
-    </div>
-    <div class="links">
+    <div class="links rel3">
         <div class="card frag"><div class="ln">01</div><h3>Saber pedir es saber escribir</h3><p>Un buen prompt es un texto claro y preciso, como un buen requerimiento.</p></div>
         <div class="card frag"><div class="ln">02</div><h3>Verificar antes de confiar</h3><p>La IA se equivoca y tiene sesgos: hay que revisar lo que produce.</p></div>
-        <div class="card frag"><div class="ln">03</div><h3>Pensar sin la herramienta</h3><p>Resolver problemas por cuenta propia, aunque la IA no esté.</p></div>
-        <div class="card frag"><div class="ln">04</div><h3>Escribir para entender</h3><p>El blog es como un diario de trabajo: documentar es parte del oficio (§ 4.4.1).</p></div>
-        <div class="card frag"><div class="ln">05</div><h3>Ética y responsabilidad</h3><p>La dependencia tecnológica y los sesgos también son responsabilidad profesional.</p></div>
+        <div class="card frag"><div class="ln">03</div><h3>Documentar para entender</h3><p>El blog es como un diario de trabajo: escribir lo que haces te obliga a entenderlo.</p></div>
     </div>
     <aside class="notes">
-        <p>Un clic por conexión. Fíjense que la 01 y la 04 conectan con producción textual: escribir bien también es una habilidad de ingeniero.</p>
+        <p><b>Expone: Linda.</b> Lee la frase grande despacio. Di: «Que el código funcione no significa que entendamos por qué funciona».</p>
+        <p>Un clic por tarjeta: escribir buenos prompts, revisar lo que dice la IA y documentar. Las tres son parte de nuestro oficio.</p>
     </aside>
 </section>
 
 <!-- =====================================================================
-     18 · COMPROBAR · LOS RESULTADOS (adivina y voltea)
+     7 · COMPROBAR · RESULTADOS Y VEREDICTO (pregunta 7)
      ===================================================================== -->
-<section class="slide" data-station="6" data-q="7" data-shot="nums" data-dim=".62,.3" data-enter="fall">
+<section class="slide" data-station="6" data-q="7" data-shot="nums" data-dim=".66,.3" data-enter="fall">
     <div class="head">
-        <h2 class="h2 split">¿Qué encontró? <em>Adivinen primero.</em></h2>
+        <h2 class="h2 split">¿Qué encontró? <em>¿Acertamos?</em></h2>
     </div>
-    <p class="src mono-s rv" style="--d: .3s">Sección 3 · con y sin ChatGPT</p>
-    <div class="nums">
+    <div class="nums cmp">
         <div class="flip frag keep tap" data-ping style="--d: .3s"><div class="in">
-            <div class="face front"><div class="qm">?</div><p>¿Cuánto cambió el tiempo para hacer las tareas?</p></div>
-            <div class="face back"><div class="v"><span class="count" data-to="30" data-prefix="−" data-suffix="%">0</span><i>↓</i></div><p>de <b>tiempo</b> para completar las tareas</p></div></div></div>
+            <div class="face front"><div class="qm">?</div><p>¿Cuánto cambió el tiempo de las tareas?</p></div>
+            <div class="face back"><div class="v"><span class="count" data-to="30" data-prefix="−" data-suffix="%">0</span><i>↓</i></div><p>de <b>tiempo</b> para hacer las tareas</p></div></div></div>
         <div class="flip frag keep tap" style="--d: .4s"><div class="in">
             <div class="face front"><div class="qm">?</div><p>¿Mejoró la calidad de los trabajos?</p></div>
-            <div class="face back"><div class="v"><span class="count" data-to="25" data-prefix="+" data-suffix="%">0</span><i>↑</i></div><p>en <b>calidad y comprensión</b> del código</p></div></div></div>
+            <div class="face back"><div class="v"><span class="count" data-to="25" data-prefix="+" data-suffix="%">0</span><i>↑</i></div><p>de <b>calidad</b> y comprensión del código</p></div></div></div>
         <div class="flip frag keep tap" style="--d: .5s"><div class="in">
-            <div class="face front"><div class="qm">?</div><p>¿Y los diseños de páginas web?</p></div>
-            <div class="face back"><div class="v"><span class="count" data-to="35" data-prefix="+" data-suffix="%">0</span><i>↑</i></div><p>de <b>coherencia</b> en el diseño web</p></div></div></div>
-        <div class="flip frag keep tap" style="--d: .6s"><div class="in">
             <div class="face front"><div class="qm">?</div><p>¿Cometieron más o menos errores?</p></div>
-            <div class="face back"><div class="v"><span class="count" data-to="25" data-prefix="−" data-suffix="%">0</span><i>↓</i></div><p>de <b>errores</b> en bases de datos frente al grupo control</p></div></div></div>
-        <div class="flip frag keep tap" style="--d: .7s"><div class="in">
-            <div class="face front"><div class="qm">?</div><p>¿Cuántos sintieron que les ayudó a corregir errores?</p></div>
-            <div class="face back"><div class="v"><span class="count" data-to="72" data-suffix="%">0</span></div><p>dijo que ChatGPT le ayudó a <b>corregir errores</b> más rápido</p></div></div></div>
-        <div class="flip frag keep tap" style="--d: .8s"><div class="in">
-            <div class="face front"><div class="qm">?</div><p>¿Cuántos exploraron temas más avanzados?</p></div>
-            <div class="face back"><div class="v"><span class="count" data-to="68" data-suffix="%">0</span></div><p>dijo que le permitió explorar <b>conceptos avanzados</b></p></div></div></div>
+            <div class="face back"><div class="v"><span class="count" data-to="25" data-prefix="−" data-suffix="%">0</span><i>↓</i></div><p>de <b>errores</b> en bases de datos</p></div></div></div>
+        <div class="flip frag keep tap" style="--d: .6s"><div class="in">
+            <div class="face front"><div class="qm">?</div><p>¿Cuántos sintieron que les ayudó?</p></div>
+            <div class="face back"><div class="v"><span class="count" data-to="72" data-suffix="%">0</span></div><p>dijo que corrigió <b>errores</b> más rápido</p></div></div></div>
     </div>
+    <div class="verd card rv" style="--d: .5s">
+        <h4>NUESTRA HIPÓTESIS</h4>
+        <div class="vr frag" data-sfx="stamp"><span><small>P1</small>Más rápido</span><div class="stamp ok">✓ Sí</div></div>
+        <div class="vr frag" data-sfx="stamp"><span><small>P2</small>Mejor calidad</span><div class="stamp ok">✓ Sí</div></div>
+        <div class="vr frag" data-sfx="stamp"><span><small>P3</small>Menos dependencia</span><div class="stamp mid">◐ A medias</div></div>
+        <p class="vnote frag">La dependencia <b>no desapareció</b> y el efecto del blog <b>no se midió</b>: tuvimos que corregir esa parte.</p>
+    </div>
+    <div class="bigstamp cmpst frag" data-sfx="bigstamp"><b>CONFIRMADA</b><span>…con matices</span></div>
     <aside class="notes">
-        <p>¡Momento de participación! Lean la pregunta de cada tarjeta, pidan al público que adivine y luego tóquenla para revelar el número.</p>
-        <p>Las dos últimas son percepción de los estudiantes, no mediciones.</p>
+        <p><b>Expone: Vladimir.</b> ¡Participación! Lee cada pregunta, deja que el público adivine y toca la tarjeta: −30 % de tiempo, +25 % de calidad, −25 % de errores y 72 % sintió que le ayudó.</p>
+        <p>Luego, con clics, el veredicto: acertamos en rapidez y calidad, pero la dependencia no desapareció. Al final sale el sello: «Confirmada… con matices».</p>
     </aside>
 </section>
 
 <!-- =====================================================================
-     19 · COMPROBAR · VEREDICTO
-     ===================================================================== -->
-<section class="slide" data-station="6" data-q="7" data-shot="verdict" data-dim=".66,.3" data-enter="rise">
-    <div class="head">
-        <h2 class="h2 split" style="font-size: 110px;">¿Acertamos?</h2>
-    </div>
-    <div class="verdict">
-        <div class="vrow card frag" data-sfx="stamp">
-            <div class="pp"><small>P1</small>Trabajarán más rápido</div>
-            <div class="ev">El tiempo para completar tareas bajó un <b>30 %</b>.</div>
-            <div class="stamp ok">✓ Acertamos</div>
-        </div>
-        <div class="vrow card frag" data-sfx="stamp">
-            <div class="pp"><small>P2</small>Con mejor calidad técnica</div>
-            <div class="ev">Calidad <b>+25 %</b>, diseño web <b>+35 %</b> y <b>25 % menos</b> errores en bases de datos.</div>
-            <div class="stamp ok">✓ Acertamos</div>
-        </div>
-        <div class="vrow card frag" data-sfx="stamp">
-            <div class="pp"><small>P3</small>El blog reducirá la dependencia</div>
-            <div class="ev">La dependencia <b>no desapareció</b>: algunos no podían resolver sin la IA. El efecto del blog <b>no se midió directamente</b>.</div>
-            <div class="stamp mid">◐ A medias</div>
-        </div>
-    </div>
-    <div class="bigstamp frag" data-sfx="bigstamp"><b>CONFIRMADA</b><span>…con matices</span></div>
-    <aside class="notes">
-        <p>Retomen el sobre sellado de la estación 2. Un clic por predicción (suena el sello) y al final el sello grande.</p>
-        <p>Frase: "Acertamos en lo que se podía medir, pero el artículo nos obligó a matizar la parte de la dependencia".</p>
-    </aside>
-</section>
-
-<!-- =====================================================================
-     20 · COMPROBAR · EL BORRADOR CORREGIDO
-     ===================================================================== -->
-<section class="slide" data-station="6" data-q="7" data-shot="draft" data-dim=".66,.3" data-enter="drift">
-    <div class="head">
-        <h2 class="h2 split" style="font-size: 88px;">¿Qué tuvimos que <em>corregir</em>?</h2>
-    </div>
-    <span class="frag trig f-strike" data-sfx="scribble"></span>
-    <div class="draft rv" style="--d: .3s">
-        <div class="dk">HIPÓTESIS · BORRADOR 1</div>
-        <p>Si se integra ChatGPT como asistente y se complementa con blogs de reflexión, los estudiantes trabajarán más rápido y con mejor calidad técnica, <span class="strike">y la dependencia de la IA se reducirá gracias a la reflexión.</span></p>
-        <div class="fix frag" data-sfx="scribble">pero la dependencia no desaparece: el blog ayuda a reflexionar sobre ella, y su efecto todavía hay que medirlo.</div>
-    </div>
-    <div class="margin-notes">
-        <div class="mnote frag" data-sfx="scribble">sin pruebas estadísticas</div>
-        <div class="mnote frag" data-sfx="scribble">¿cómo se formó el grupo control?</div>
-        <div class="mnote frag" data-sfx="scribble">efecto del blog = interpretación</div>
-    </div>
-    <aside class="notes">
-        <p>Producción textual pura: la hipótesis también tiene borradores. Clic → se tacha la parte equivocada. Clic → se escribe la corrección a mano.</p>
-        <p>Luego las notas al margen: lo que aprendimos a cuestionar del artículo (no presenta pruebas estadísticas, no explica bien el grupo control y el efecto del blog es una interpretación).</p>
-    </aside>
-</section>
-
-<!-- =====================================================================
-     21 · EXPLICAR · APRENDIZAJES
+     8 · EXPLICAR · APRENDIZAJES (pregunta 8)
      ===================================================================== -->
 <section class="slide" data-station="7" data-q="8" data-shot="lessons" data-dim=".66,.45" data-enter="rise">
     <div class="head">
         <h2 class="h2 split">¿Qué aprendimos sobre <em>leer ciencia</em>?</h2>
     </div>
-    <div class="lessons">
-        <div class="lesson frag"><div class="k">1</div><div><h3>Un artículo se construye como un tren</h3><p>Problema → teoría → método → resultados → discusión → limitaciones, todo enganchado.</p></div></div>
-        <div class="lesson frag"><div class="k">2</div><div><h3>Un número sin su "cómo" es solo un número</h3><p>Todo porcentaje debe explicar cómo se obtuvo.</p></div></div>
-        <div class="lesson frag"><div class="k">3</div><div><h3>Combinar datos da más fuerza</h3><p>Cifras + reflexiones de los estudiantes = triangulación.</p></div></div>
-        <div class="lesson frag"><div class="k">4</div><div><h3>Admitir limitaciones es honestidad</h3><p>Y contrastar con otros estudios le da credibilidad.</p></div></div>
-        <div class="lesson frag"><div class="k">5</div><div><h3>Leer es dialogar con el texto</h3><p>Anticipar, comprobar y corregir nuestras propias ideas, como hicimos con la hipótesis.</p></div></div>
+    <div class="lessons sum">
+        <div class="lesson frag"><div class="k">1</div><div><h3>Un artículo se construye como un tren</h3><p>Problema → método → resultados → conclusión: todo va en orden y enganchado.</p></div></div>
+        <div class="lesson frag"><div class="k">2</div><div><h3>Un número sin su "cómo" es solo un número</h3><p>Sin una buena metodología, los porcentajes no se pueden creer ni repetir.</p></div></div>
+        <div class="lesson frag"><div class="k">3</div><div><h3>Leer es dialogar con el texto</h3><p>Anticipamos, comprobamos y corregimos nuestra propia hipótesis.</p></div></div>
     </div>
     <aside class="notes">
-        <p>Respuesta a "¿qué aprendieron sobre la lectura de artículos científicos?". Un clic por aprendizaje y una frase por cada uno.</p>
+        <p><b>Expone: Vladimir.</b> Un clic por aprendizaje y una frase por cada uno.</p>
+        <p>Cierra con: «Leer un artículo científico no es copiarlo: es hacerle preguntas y comprobar si tus ideas eran correctas».</p>
     </aside>
 </section>
 
 <!-- =====================================================================
-     22 · EXPLICAR · RETO: ¿Y SI LOS RIELES FALLARAN?
-     ===================================================================== -->
-<section class="slide s-reto" data-station="7" data-q="8" data-shot="reto" data-dim=".8,.55" data-enter="zoom">
-    <div class="head">
-        <h2 class="h2 split">¿Y si los <em>rieles</em> fallaran?</h2>
-    </div>
-    <div class="scene rv" style="--d: .3s">
-        <div class="anno">sin rieles, no hay viaje</div>
-        <div class="rtrain"><div class="train-ph" data-reto="1"></div></div>
-        <div class="rseg a"></div>
-        <div class="rseg b frag keep tap" data-ping data-sfx="crash"><span class="rl">METODOLOGÍA</span></div>
-        <div class="rseg c"></div>
-    </div>
-    <div class="left">
-        <p class="rv" style="--d: .3s">La metodología son <b>los rieles</b> del artículo: dicen qué se midió, cómo y en qué orden.</p>
-        <p class="frag">Sin ella, el <b>−30 %</b> y el <b>+25 %</b> no se podrían verificar ni repetir… y las conclusiones serían <b>opiniones</b>, no hallazgos.</p>
-        <div class="warn frag">Por eso leímos sus cifras con cautela: el artículo no detalla cómo se formó el grupo control.</div>
-    </div>
-    <aside class="notes">
-        <p>Nuestro reto final: imaginar el artículo con una metodología mal hecha.</p>
-        <p>Toquen el riel ámbar "METODOLOGÍA": se rompe y el tren se descarrila. Dejen que el público lo vea y luego expliquen con los siguientes clics.</p>
-    </aside>
-</section>
-
-<!-- =====================================================================
-     23 · CIERRE
+     9 · CIERRE
      ===================================================================== -->
 <section class="slide s-end" data-station="0" data-cine="final" data-hook="end" data-shot="end" data-dim=".42,0" data-enter="zoom">
     <div class="wrap">
@@ -1325,8 +971,8 @@ img, video, canvas, svg { max-width: 100%; max-height: 100%; }
     </div>
     <p class="ref rv" style="--d: .4s">Zúñiga Zárate, A. G. (2025). Análisis de la integración de ChatGPT en el aprendizaje universitario con apoyo de blogs. <i>Comunicar, 33</i>(80), 60–74. https://doi.org/10.58262/C80-2025-06</p>
     <aside class="notes">
-        <p>El tren llega a la estación final: "Comprensión". Repitan la pregunta del inicio y esperen un segundo antes del clic.</p>
-        <p>Clic → la respuesta (la idea con la que el público debe salir). Clic → gracias y preguntas.</p>
+        <p><b>Expone: Vladimir.</b> El tren llega a la estación final. Repite la pregunta del inicio y espera un segundo.</p>
+        <p>Clic → la respuesta. Clic → gracias y preguntas.</p>
     </aside>
 </section>
 
@@ -1349,7 +995,7 @@ img, video, canvas, svg { max-width: 100%; max-height: 100%; }
 <button class="mute" id="muteBtn" title="Sonido (M)">♪</button>
 <div class="deck-controls" id="controls">
     <button id="btnPrev" aria-label="Anterior">‹</button>
-    <span id="counter">1 / 23</span>
+    <span id="counter">1 / 9</span>
     <button id="btnNext" aria-label="Siguiente">›</button>
 </div>
 <div class="notes-panel" id="notesPanel" aria-live="polite"></div>
@@ -1384,7 +1030,7 @@ const ORG = [
     { tag: 'FINAL', big: 'R', name: 'Referencias', q: '¿En quién se apoya?', fn: 'Reúne las fuentes que respaldan cada afirmación del texto.', loc: 'Final del artículo', short: 'Referencias' }
 ];
 
-const STORAGE_KEY = 'expo-tren-lectura-v4';
+const STORAGE_KEY = 'expo-tren-lectura-resumida-v1';
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ===========================================
@@ -1689,7 +1335,7 @@ class SlidePresentation {
             if (!st || s.querySelector('.chrome')) return;
             const h = document.createElement('header');
             h.className = 'chrome';
-            h.innerHTML = `<span class="kicker"><b>0${st}</b><i></i>${STATIONS[st].name}</span>` + (s.dataset.q ? `<span class="qchip">Pregunta <b>${s.dataset.q}</b> · 8</span>` : '<span></span>');
+            h.innerHTML = `<span class="kicker"><b>0${st}</b><i></i>${STATIONS[st].name}</span>` + (s.dataset.q ? `<span class="qchip">${s.dataset.q.includes(' y ') ? 'Preguntas' : 'Pregunta'} <b>${s.dataset.q}</b> · 8</span>` : '<span></span>');
             s.prepend(h);
         });
     }
@@ -2021,7 +1667,7 @@ const editor = {
         const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
         const a = document.createElement('a');
         a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
-        a.download = 'Exposicion-ChatGPT-Blogs.html';
+        a.download = 'Exposicion-ChatGPT-Blogs-Resumida.html';
         a.click();
         URL.revokeObjectURL(a.href);
     }
