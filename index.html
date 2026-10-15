@@ -1849,7 +1849,9 @@ class SlidePresentation {
             Cine.open(info);
             this.stage.classList.add('no-rail');
             Sound.humStart();
-            await W3().cine(info.cine);
+            /* Seguro: si la cinemática no termina en 12 s (pestaña en segundo plano, equipo lento), se salta */
+            await Promise.race([W3().cine(info.cine), new Promise(r => setTimeout(r, 12000))]);
+            if (window.World && window.World.ready) W3().skip();
             Sound.humStop();
             Cine.close();
             this.busy = false;

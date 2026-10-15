@@ -4,9 +4,11 @@ Presentación interactiva para Producción Textual: análisis del artículo «An
 
 **Autores:** Camilo Andrés López González · Linda Valentina Palacio Chamorro · Vladimir Gómez Páez
 
-**Ver en línea:** https://notcronox.github.io/tren-de-la-lectura/
+**Ver en línea:**
+- Versión completa (23 láminas): https://notcronox.github.io/tren-de-la-lectura/
+- Versión resumida (9 láminas, con guion en las notas): https://notcronox.github.io/tren-de-la-lectura/resumen.html
 
-Un solo archivo (`index.html`) que funciona sin internet: incluye el tren bala en 3D (three.js, licencia MIT) y las fuentes (licencia SIL OFL).
+Cada versión es un solo archivo (`index.html` y `resumen.html`) que funciona sin internet: incluye el tren bala en 3D (three.js, licencia MIT) y las fuentes (licencia SIL OFL).
 
 ## Controles
 - Clic o → : avanzar · ← : retroceder · un clic durante una cinemática la salta
